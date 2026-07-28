@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmacy Performance Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f5;color:#1a1a2e;font-size:13px;min-height:100vh}
+
+.topbar{background:#1F4E79;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:50px;position:sticky;top:0;z-index:200}
+.topbar-brand{color:#fff;font-size:13px;font-weight:600;letter-spacing:0.2px;display:flex;align-items:center;gap:8px}
+.brand-dot{width:8px;height:8px;border-radius:50%;background:#58a6ff}
+.nav-tabs{display:flex;gap:2px}
+.nav-tab{padding:6px 14px;font-size:12px;border-radius:5px;cursor:pointer;color:rgba(255,255,255,0.6);border:none;background:transparent;transition:all 0.15s;font-family:inherit;font-weight:500}
+.nav-tab:hover{color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.1)}
+.nav-tab.active{background:rgba(255,255,255,0.18);color:#fff}
+.topbar-right{font-size:11px;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:10px}
+.rls-badge{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);padding:3px 8px;border-radius:4px;font-size:10px;color:rgba(255,255,255,0.7)}
+
+.filterbar{background:#164069;padding:8px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,0.06)}
+.fl{font-size:10px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.6px;margin-right:2px}
+.fsel{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:5px;color:#fff;font-size:11px;padding:4px 24px 4px 8px;cursor:pointer;appearance:none;-webkit-appearance:none;font-family:inherit;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.5)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;transition:border-color 0.15s}
+.fsel:hover{border-color:rgba(255,255,255,0.35)}
+.fdiv{width:1px;height:18px;background:rgba(255,255,255,0.12)}
+
+.main{padding:16px 20px;display:none}
+.main.active{display:block;animation:fadein 0.18s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+.sec-label{font-size:10px;text-transform:uppercase;letter-spacing:0.7px;color:#8b949e;font-weight:600;margin-bottom:8px}
+
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid #e8eaf0;border-radius:8px;padding:12px 14px;cursor:pointer;transition:all 0.15s;position:relative;user-select:none}
+.kpi:hover{border-color:#2E75B6;box-shadow:0 0 0 3px rgba(46,117,182,0.1)}
+.kpi.selected{border:2px solid #2563eb;box-shadow:0 0 0 3px rgba(37,99,235,0.12);background:#f8fbff}
+.kpi-lbl{font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px}
+.kpi-val{font-size:20px;font-weight:600;color:#1a1a2e;line-height:1;margin-bottom:5px}
+.kpi-val.blue{color:#185FA5;font-size:24px}
+.kpi-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px}
+.badge-red{background:#fce4e4;color:#b91c1c}
+.badge-green{background:#dcfce7;color:#166534}
+.badge-amber{background:#fef3c7;color:#92400e}
+.kpi-bench{font-size:10px;color:#9ca3af}
+.kpi-hint{font-size:9px;color:#bfdbfe;margin-top:4px;display:none}
+.kpi.selected .kpi-hint{display:block;color:#3b82f6}
+
+/* CHART PANELS */
+.panel-row{display:grid;gap:12px;margin-bottom:14px}
+.panel-row.c32{grid-template-columns:3fr 2fr}
+.panel-row.c21{grid-template-columns:2fr 1fr}
+.panel-row.c22{grid-template-columns:1fr 1fr}
+.panel-row.c312{grid-template-columns:2fr 1.8fr 1.2fr}
+.panel{background:#fff;border:1px solid #e8eaf0;border-radius:10px;padding:14px 16px}
+.panel-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.panel-title{font-size:12px;font-weight:600;color:#1a1a2e}
+.panel-sub{font-size:10px;color:#9ca3af;margin-top:2px}
+.ptag{font-size:10px;padding:2px 8px;border-radius:3px;font-weight:500;white-space:nowrap}
+.ptag-blue{background:#dbeafe;color:#1d4ed8}
+.ptag-red{background:#fce4e4;color:#b91c1c}
+.ptag-green{background:#dcfce7;color:#166534}
+.ptag-amber{background:#fef3c7;color:#92400e}
+
+/* CHART CONTEXT STRIP */
+.chart-ctx{background:#eff6ff;border-radius:6px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.chart-ctx-icon{width:28px;height:28px;border-radius:6px;background:#2563eb;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chart-ctx-icon svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2}
+.chart-ctx-title{font-size:12px;font-weight:600;color:#1e3a8a}
+.chart-ctx-sub{font-size:10px;color:#3b82f6;margin-top:1px}
+
+.legend-row{display:flex;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280}
+.leg-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.leg-dash{display:inline-block;width:18px;height:2px;border-top:2px dashed #9ca3af;margin-right:4px;vertical-align:middle}
+
+.alert{padding:8px 12px;border-left:3px solid #d97706;background:#fffbeb;border-radius:0 4px 4px 0;margin-bottom:10px;font-size:11px;color:#78350f}
+.alert strong{color:#451a03}
+.alert-info{border-left-color:#2563eb;background:#eff6ff;color:#1e3a8a}
+
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.4px;padding:7px 8px;border-bottom:1px solid #f1f5f9;text-align:left;font-weight:600;background:#fafbfc;white-space:nowrap}
+th.r{text-align:right}
+td{font-size:11px;padding:7px 8px;border-bottom:1px solid #f8fafc;color:#374151;vertical-align:middle}
+td.r{text-align:right}
+td.muted{color:#9ca3af;font-size:10px}
+tr:hover td{background:#f9fafb}
+tr:last-child td{border-bottom:none}
+
+.pill{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500;white-space:nowrap;display:inline-block}
+.pill-red{background:#fce4e4;color:#b91c1c}
+.pill-green{background:#dcfce7;color:#166534}
+.pill-amber{background:#fef3c7;color:#92400e}
+.pill-blue{background:#dbeafe;color:#1d4ed8}
+
+.ctx-bar{background:#eff6ff;border-left:3px solid #2563eb;padding:8px 14px;border-radius:0 6px 6px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ctx-text{font-size:11px;color:#1e40af}
+.ctx-text strong{color:#1e3a8a;font-weight:600}
+.back-btn{font-size:11px;padding:5px 12px;border-radius:5px;background:#fff;color:#2563eb;border:1px solid #bfdbfe;cursor:pointer;font-weight:500}
+
+.act-btn{font-size:11px;padding:5px 12px;border-radius:5px;cursor:pointer;font-weight:500;border:1px solid;transition:all 0.15s;font-family:inherit}
+.act-btn-green{background:#f0fdf4;color:#166534;border-color:#bbf7d0}
+.act-btn-green:hover{background:#dcfce7}
+.act-btn-blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.act-btn-blue:hover{background:#dbeafe}
+.act-btn-ghost{background:#f8fafc;color:#6b7280;border-color:#e5e7eb}
+.act-btn-red{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
+
+.prog-row{display:flex;align-items:center;gap:8px;margin:5px 0}
+.prog-lbl{width:115px;font-size:11px;color:#6b7280;flex-shrink:0}
+.prog-track{flex:1;height:7px;background:#f1f5f9;border-radius:4px;overflow:visible;position:relative}
+.prog-fill{height:100%;border-radius:4px}
+.prog-ref{position:absolute;top:-2px;bottom:-2px;width:2px;border-radius:1px;background:#9ca3af}
+.prog-val{width:38px;text-align:right;font-size:11px;font-weight:600;color:#374151;flex-shrink:0}
+
+.sav-row{display:flex;align-items:center;gap:6px}
+.sbar{flex:1;height:5px;background:#f1f5f9;border-radius:3px;overflow:hidden}
+.sbar-fill{height:100%;border-radius:3px;background:#16a34a}
+.sav-val{font-weight:600;color:#166534;white-space:nowrap;font-size:11px}
+
+.sum-box{text-align:center;background:#f8fafc;border-radius:8px;padding:10px 8px}
+.sum-val{font-size:20px;font-weight:600;line-height:1;margin-bottom:3px}
+.sum-lbl{font-size:10px;color:#9ca3af;line-height:1.3}
+.sum-bench{font-size:10px;margin-top:3px;font-weight:500}
+
+.score-bar{background:#fff;border:1px solid #e8eaf0;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+
+.adh-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.adh-card{background:#fff;border:1px solid #e8eaf0;border-radius:8px;padding:10px 12px}
+.adh-card.warn{border-top:3px solid #8DB041}
+.adh-card.ok{border-top:3px solid #9E2234}
+.adh-card.caution{border-top:3px solid #DBAE48}
+.adh-lbl{font-size:10px;color:#9ca3af;margin-bottom:4px;line-height:1.3}
+.adh-val{font-size:20px;font-weight:600;line-height:1;margin-bottom:4px}
+.adh-val.red{color:#374151}
+.adh-val.green{color:#374151}
+.adh-val.amber{color:#374151}
+.adh-bench{font-size:10px;color:#9ca3af}
+
+.bench-note{margin-top:10px;padding:8px 12px;background:#f0f9ff;border-left:2px solid #2E75B6;font-size:11px;color:#0c4a6e}
+.bench-note strong{color:#0369a1}
+.gauge-callout{width:100%;padding:8px 10px;background:#fef3c7;border-left:2px solid #d97706;margin-top:8px;font-size:11px;color:#78350f}
+.gauge-callout strong{color:#451a03;font-size:13px;display:block;margin-top:2px}
+.toggle-group{display:flex;gap:4px}
+.tog-btn{font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:500;border:1px solid #e5e7eb;background:#f8fafc;color:#6b7280;font-family:inherit;transition:all 0.12s}
+.tog-btn.on{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.table-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid #f1f5f9;margin-top:4px}
+.m-name{font-weight:600;font-size:11px;color:#1a1a2e}
+.m-id{font-size:10px;color:#9ca3af}
+.tbl-wrap{overflow-x:auto}
+
+/* Chart transition */
+canvas{transition:opacity 0.2s}
+canvas.fading{opacity:0}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand"><div class="brand-dot"></div>Pharmacy Performance Dashboard</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('overview')">Overview</button>
+    <button class="nav-tab" onclick="showPage('trends')">Trends</button>
+    <button class="nav-tab" onclick="showPage('drivers')">Cost Drivers</button>
+    <button class="nav-tab" onclick="showPage('quality')">Quality</button>
+    <button class="nav-tab" onclick="showPage('members')">Member Detail</button>
+  </div>
+  <div class="topbar-right">
+    <span class="rls-badge">RLS: Kentucky Market</span>
+    <span>Last refresh: Mar 20, 2026</span>
+  </div>
+</div>
+
+<div class="filterbar">
+  <span class="fl">Filters</span>
+  <select class="fsel"><option>Market: Kentucky</option></select>
+  <select class="fsel"><option>Group: Bluegrass Family Health (TIN 421...)</option><option>Mountain View Med</option><option>Lexington Primary Care</option></select>
+  <div class="fdiv"></div>
+  <select class="fsel"><option>Period: Rolling 13 months</option><option>YTD 2026</option><option>CY 2025</option></select>
+  <select class="fsel"><option>LOB: All</option><option>Medicaid</option><option>Medicare</option><option>Marketplace</option></select>
+  <select class="fsel"><option>Drug Class: All</option><option>Diabetes</option><option>Cardiovascular</option><option>Specialty/Biologic</option></select>
+  <select class="fsel"><option>Specialty: All</option><option>Primary Care</option><option>Endocrinology</option><option>Rheumatology</option></select>
+</div>
+
+<!-- ══════════ PAGE 1: OVERVIEW ══════════ -->
+<div class="main active" id="page-overview">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div class="sec-label" style="margin-bottom:0">Select a KPI to explore — charts update to show that metric across all provider groups</div>
+    <span id="kpi-hint-tag" class="ptag ptag-blue">Viewing: Rx PMPM</span>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi selected" id="kpi-pmpm" onclick="selectKPI('pmpm')">
+      <div class="kpi-lbl">Rx PMPM</div>
+      <div class="kpi-val">$127.40</div>
+      <div class="kpi-meta"><span class="badge badge-red">+14.2% vs expected</span><span class="kpi-bench">Expected: $111.55</span></div>
+      <div style="margin-top:6px"><a style="font-size:10.5px;color:#00548C;font-weight:600;text-decoration:none;cursor:pointer">View Details</a></div>
+    </div>
+    <div class="kpi" id="kpi-gfr" onclick="selectKPI('gfr')">
+      <div class="kpi-lbl">Generic Fill Rate</div>
+      <div class="kpi-val">81.3%</div>
+      <div class="kpi-meta"><span class="badge badge-red">-6.4 pts vs state</span><span class="kpi-bench">State: 87.7%</span></div>
+      <div style="margin-top:6px"><a style="font-size:10.5px;color:#00548C;font-weight:600;text-decoration:none;cursor:pointer">View Details</a></div>
+    </div>
+    <div class="kpi" id="kpi-rpm" onclick="selectKPI('rpm')">
+      <div class="kpi-lbl">Rx per Member/Mo</div>
+      <div class="kpi-val">4.2</div>
+      <div class="kpi-meta"><span class="badge badge-amber">+0.4 vs state</span><span class="kpi-bench">State: 3.8</span></div>
+      <div style="margin-top:6px"><a style="font-size:10.5px;color:#00548C;font-weight:600;text-decoration:none;cursor:pointer">View Details</a></div>
+    </div>
+    <div class="kpi" id="kpi-cpc" onclick="selectKPI('cpc')">
+      <div class="kpi-lbl">Cost per Claim</div>
+      <div class="kpi-val">$30.32</div>
+      <div class="kpi-meta"><span class="badge badge-amber">+8.1% vs state</span><span class="kpi-bench">State: $28.05</span></div>
+      <div style="margin-top:6px"><a style="font-size:10.5px;color:#00548C;font-weight:600;text-decoration:none;cursor:pointer">View Details</a></div>
+    </div>
+    <div class="kpi" id="kpi-pdl" onclick="selectKPI('pdl')">
+      <div class="kpi-lbl">PDL Compliance</div>
+      <div class="kpi-val">88.4%</div>
+      <div class="kpi-meta"><span class="badge badge-green">On target</span><span class="kpi-bench">State: 86.9%</span></div>
+      <div style="margin-top:6px"><a style="font-size:10.5px;color:#00548C;font-weight:600;text-decoration:none;cursor:pointer">View Details</a></div>
+    </div>
+    <div class="kpi" id="kpi-d90" onclick="selectKPI('d90')">
+      <div class="kpi-lbl">90-Day Refill %</div>
+      <div class="kpi-val">34.1%</div>
+      <div class="kpi-meta"><span class="badge badge-amber">-7.2 pts vs state</span><span class="kpi-bench">State: 41.3%</span></div>
+      <div style="margin-top:6px"><a style="font-size:10.5px;color:#00548C;font-weight:600;text-decoration:none;cursor:pointer">View Details</a></div>
+    </div>
+  </div>
+
+  <div class="panel-row c32">
+    <div class="panel">
+      <div id="bar-ctx" class="chart-ctx">
+        <div class="chart-ctx-icon">
+          <svg viewBox="0 0 14 14"><rect x="1" y="4" width="3" height="9" rx="1"/><rect x="5.5" y="1" width="3" height="12" rx="1"/><rect x="10" y="6" width="3" height="7" rx="1"/></svg>
+        </div>
+        <div>
+          <div class="chart-ctx-title" id="bar-ctx-title">Rx PMPM by provider group vs. expected average</div>
+          <div class="chart-ctx-sub" id="bar-ctx-sub">Showing all 8 provider groups — Kentucky market — select a KPI card above to change metric</div>
+        </div>
+      </div>
+      <div id="bar-legend" class="legend-row">
+        <span class="leg-item"><span class="leg-sq" style="background:#9E2234"></span>Above expected avg</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#8DB041"></span>At / below expected avg</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#d1d5db"></span>Expected avg</span>
+      </div>
+      <div style="position:relative;width:100%;height:290px"><canvas id="mainBar"></canvas></div>
+    </div>
+
+    <div class="panel">
+      <div id="donut-ctx" class="chart-ctx">
+        <div class="chart-ctx-icon" style="background:#0891b2">
+          <svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" stroke-width="2"/><circle cx="7" cy="7" r="2"/></svg>
+        </div>
+        <div>
+          <div class="chart-ctx-title" id="donut-ctx-title">Drug mix — % of total Rx cost</div>
+          <div class="chart-ctx-sub" id="donut-ctx-sub">Generic vs. brand vs. specialty cost breakdown</div>
+        </div>
+      </div>
+      <div id="donut-legend" class="legend-row">
+        <span class="leg-item"><span class="leg-sq" style="background:#00548C"></span>Generic 52%</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#00AEEF"></span>Brand 28%</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#F37021"></span>Specialty 20%</span>
+      </div>
+      <div style="position:relative;width:100%;height:200px"><canvas id="mainDonut"></canvas></div>
+      <div id="bench-note" class="bench-note">
+        State avg drug mix: Generic 61% | Brand 26% | Specialty 13%<br>
+        <strong>Generic gap: −9 pts &nbsp;·&nbsp; Specialty gap: +7 pts</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE 2: TRENDS ══════════ -->
+<div class="main" id="page-trends">
+  <div class="panel" style="margin-bottom:14px">
+    <div class="panel-hdr">
+      <div>
+        <div class="panel-title">Is Rx PMPM trending better or worse — and how does the trajectory compare to expected?</div>
+        <div class="panel-sub">Rolling 13 months — Bluegrass Family Health vs. expected average</div>
+      </div>
+      <span class="ptag ptag-red">Gap widening +$15.85</span>
+    </div>
+    <div class="alert"><strong>Feb–Mar spike:</strong> Both provider and expected lines rose — consistent with a PDL formulary change effective Feb 2026. Provider group did not adopt biosimilar alternatives, widening the gap vs. expected.</div>
+    <div class="legend-row">
+      <span class="leg-item"><span class="leg-sq" style="background:#2563eb"></span>Bluegrass Family Health PMPM</span>
+      <span class="leg-item"><span class="leg-dash"></span>expected average</span>
+    </div>
+    <div style="position:relative;width:100%;height:240px"><canvas id="trendLine"></canvas></div>
+  </div>
+
+  <div class="panel" style="margin-bottom:14px">
+    <div class="panel-hdr">
+      <div>
+        <div class="panel-title">What is driving the PMPM variance? Decomposition: utilization vs. cost vs. drug mix</div>
+        <div class="panel-sub">Each driver's contribution to the $15.85 gap between this group ($127.40) and expected ($111.55)</div>
+      </div>
+      <span class="ptag ptag-red">Total gap: +$15.85 vs. expected avg</span>
+    </div>
+    <div class="alert alert-info"><strong>How to read this:</strong> The waterfall shows how much of the PMPM gap is explained by each driver. Bars above the baseline mean that driver is pushing cost higher vs. expected.</div>
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:start">
+      <div>
+        <div style="position:relative;width:100%;height:220px"><canvas id="decompWaterfall"></canvas></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;padding-top:4px">
+        <div style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">Driver breakdown</div>
+
+        <div style="background:#fef2f2;border-radius:8px;padding:10px 12px;border-left:3px solid #dc2626">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div style="font-size:11px;font-weight:600;color:#991b1b">Drug mix shift</div>
+            <div style="font-size:16px;font-weight:700;color:#dc2626">+$7.20</div>
+          </div>
+          <div style="font-size:10px;color:#b91c1c;margin-top:2px">Specialty share 20% vs. expected 13% (+7 pts)</div>
+          <div style="font-size:10px;color:#9ca3af;margin-top:1px">45% of total gap</div>
+        </div>
+
+        <div style="background:#fef2f2;border-radius:8px;padding:10px 12px;border-left:3px solid #ef4444">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div style="font-size:11px;font-weight:600;color:#991b1b">Utilization (Rx/member)</div>
+            <div style="font-size:16px;font-weight:700;color:#dc2626">+$5.60</div>
+          </div>
+          <div style="font-size:10px;color:#b91c1c;margin-top:2px">4.2 scripts/member vs. expected 3.8 (+10.5%)</div>
+          <div style="font-size:10px;color:#9ca3af;margin-top:1px">35% of total gap</div>
+        </div>
+
+        <div style="background:#fef3c7;border-radius:8px;padding:10px 12px;border-left:3px solid #d97706">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div style="font-size:11px;font-weight:600;color:#92400e">Unit cost (cost/claim)</div>
+            <div style="font-size:16px;font-weight:700;color:#d97706">+$3.05</div>
+          </div>
+          <div style="font-size:10px;color:#b45309;margin-top:2px">$30.32/claim vs. expected $28.05 (+8.1%)</div>
+          <div style="font-size:10px;color:#9ca3af;margin-top:1px">19% of total gap</div>
+        </div>
+
+        <div style="background:#f0fdf4;border-radius:8px;padding:10px 12px;border-left:3px solid #16a34a">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div style="font-size:11px;font-weight:600;color:#166534">PDL compliance offset</div>
+            <div style="font-size:16px;font-weight:700;color:#16a34a">−$0.00</div>
+          </div>
+          <div style="font-size:10px;color:#15803d;margin-top:2px">88.4% vs. expected 86.9% — neutral / slightly favorable</div>
+          <div style="font-size:10px;color:#9ca3af;margin-top:1px">No material offset</div>
+        </div>
+
+        <div style="background:#f8fafc;border-radius:8px;padding:10px 12px;border:1px solid #e5e7eb;margin-top:2px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div style="font-size:11px;font-weight:600;color:#374151">Total explained gap</div>
+            <div style="font-size:18px;font-weight:700;color:#dc2626">+$15.85</div>
+          </div>
+          <div style="font-size:10px;color:#9ca3af;margin-top:2px">Primary lever: reduce specialty mix + lower utilization rate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-row c32">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div><div class="panel-title">What is driving PMPM cost month to month?</div><div class="panel-sub">Rx cost composition by drug mix — last 13 months</div></div>
+      </div>
+      <div class="legend-row">
+        <span class="leg-item"><span class="leg-sq" style="background:#00548C"></span>Generic</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#00AEEF"></span>Brand</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#F37021"></span>Specialty</span>
+      </div>
+      <div style="position:relative;width:100%;height:200px"><canvas id="stackedCol"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <div><div class="panel-title">Metric trend — last 6 months</div><div class="panel-sub">MoM delta — unfavorable highlighted</div></div>
+      </div>
+      <table>
+        <thead><tr><th>Metric</th><th class="r">Oct</th><th class="r">Nov</th><th class="r">Dec</th><th class="r">Jan</th><th class="r">Feb</th><th class="r">Mar</th></tr></thead>
+        <tbody>
+          <tr><td>PMPM ($)</td><td class="r">118</td><td class="r">120</td><td class="r">119</td><td class="r">122</td><td class="r">125</td><td class="r"><span class="pill pill-red">127</span></td></tr>
+          <tr><td>GFR (%)</td><td class="r">84</td><td class="r">83</td><td class="r">83</td><td class="r">82</td><td class="r">82</td><td class="r"><span class="pill pill-red">81</span></td></tr>
+          <tr><td>Cost/claim ($)</td><td class="r">28</td><td class="r">28</td><td class="r">29</td><td class="r">29</td><td class="r">30</td><td class="r"><span class="pill pill-amber">30</span></td></tr>
+          <tr><td>Rx/member</td><td class="r">4.0</td><td class="r">4.0</td><td class="r">4.1</td><td class="r">4.1</td><td class="r">4.2</td><td class="r"><span class="pill pill-amber">4.2</span></td></tr>
+          <tr><td>Specialty (%)</td><td class="r">17</td><td class="r">18</td><td class="r">18</td><td class="r">19</td><td class="r">19</td><td class="r"><span class="pill pill-red">20</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE 3: COST DRIVERS ══════════ -->
+<div class="main" id="page-drivers">
+  <div class="score-bar">
+    <div>
+      <div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">Pharmacy opportunity score</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span style="font-size:32px;font-weight:700;color:#374151">74</span>
+        <span style="font-size:12px;color:#374151;font-weight:600">/ 100 — High opportunity</span>
+      </div>
+      <div style="font-size:10px;color:#9ca3af;margin-top:1px">Composite: PMPM variance + GFR gap + TI savings potential + PDL gap</div>
+    </div>
+    <div style="width:1px;height:44px;background:#e5e7eb;margin:0 4px"></div>
+    <div style="text-align:center;min-width:64px"><div style="font-size:18px;font-weight:600;color:#374151">$127</div><div style="font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.3px">PMPM</div></div>
+    <div style="text-align:center;min-width:64px"><div style="font-size:18px;font-weight:600;color:#374151">−6.4pts</div><div style="font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.3px">GFR gap</div></div>
+    <div style="text-align:center;min-width:64px"><div style="font-size:18px;font-weight:600;color:#374151">$48.2K</div><div style="font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.3px">TI savings</div></div>
+    <div style="text-align:center;min-width:64px"><div style="font-size:18px;font-weight:600;color:#374151">−7.2pts</div><div style="font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.3px">90-day gap</div></div>
+  </div>
+  <div class="panel-row c21">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div><div class="panel-title">Which drugs are driving Rx PMPM cost?</div><div class="panel-sub">Top 10 cost drivers — click bar to view members</div></div>
+        <div class="toggle-group">
+          <button class="tog-btn on" onclick="toggleDrugView(this,'drug')">By drug</button>
+          <button class="tog-btn" onclick="toggleDrugView(this,'class')">By class</button>
+        </div>
+      </div>
+      <div class="legend-row">
+        <span class="leg-item"><span class="leg-sq" style="background:#00548C"></span>Generic</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#00AEEF"></span>Brand</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#F37021"></span>Specialty</span>
+      </div>
+      <div style="position:relative;width:100%;height:300px"><canvas id="drugBar"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Generic fill rate gap</div>
+      <div class="panel-sub" style="margin-bottom:10px">Provider vs. state — GFR opportunity</div>
+      <div style="position:relative;width:100%;height:160px"><canvas id="gfrBar"></canvas></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <div class="sum-box"><div class="sum-val" style="color:#9E2234">81.3%</div><div class="sum-lbl">Provider GFR</div></div>
+        <div class="sum-box"><div class="sum-val" style="color:#00548C">87.7%</div><div class="sum-lbl">State avg GFR</div></div>
+      </div>
+      <div class="gauge-callout">Est. annual savings if GFR matches state avg<strong>$22,400</strong></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-hdr">
+      <div><div class="panel-title">Which drugs are creating the most prior auth burden and denials?</div><div class="panel-sub">Top PA and denied drugs — click row to view affected members</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Drug name</th><th>Therapy class</th><th class="r">PA count</th><th class="r">Denial count</th><th class="r">Denial rate</th><th>Formulary alternative</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600">Ozempic (semaglutide)</td><td class="muted">GLP-1 / Diabetes</td><td class="r">44</td><td class="r">18</td><td class="r"><span class="pill pill-red">40.9%</span></td><td><span class="pill pill-green">Yes — Trulicity</span></td><td><a class="drill-link" style="color:#00548C;font-size:11.5px;text-decoration:none;font-weight:600;cursor:default">drill through to member list</a></td></tr>
+          <tr><td style="font-weight:600">Humira (adalimumab)</td><td class="muted">Biologic / Rheumatology</td><td class="r">28</td><td class="r">7</td><td class="r"><span class="pill pill-amber">25.0%</span></td><td><span class="pill pill-green">Yes — Hadlima</span></td><td><a class="drill-link" style="color:#00548C;font-size:11.5px;text-decoration:none;font-weight:600;cursor:default">drill through to member list</a></td></tr>
+          <tr><td style="font-weight:600">Linzess (linaclotide)</td><td class="muted">GI / IBS-C</td><td class="r">21</td><td class="r">9</td><td class="r"><span class="pill pill-red">42.9%</span></td><td><span class="pill pill-amber">Step therapy req.</span></td><td><a class="drill-link" style="color:#00548C;font-size:11.5px;text-decoration:none;font-weight:600;cursor:default">drill through to member list</a></td></tr>
+          <tr><td style="font-weight:600">Jardiance (empagliflozin)</td><td class="muted">SGLT2 / Diabetes</td><td class="r">38</td><td class="r">6</td><td class="r"><span class="pill pill-amber">15.8%</span></td><td><span class="pill pill-green">Yes — Metformin XR</span></td><td><a class="drill-link" style="color:#00548C;font-size:11.5px;text-decoration:none;font-weight:600;cursor:default">drill through to member list</a></td></tr>
+          <tr><td style="font-weight:600">Dupixent (dupilumab)</td><td class="muted">Biologic / Asthma</td><td class="r">14</td><td class="r">5</td><td class="r"><span class="pill pill-amber">35.7%</span></td><td><span class="pill pill-red">No — CMS required</span></td><td><a class="drill-link" style="color:#00548C;font-size:11.5px;text-decoration:none;font-weight:600;cursor:default">drill through to member list</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE 4: QUALITY ══════════ -->
+<div class="main" id="page-quality">
+  <div class="sec-label">Adherence measures — provider vs. state average</div>
+  <div class="adh-grid">
+    <div class="adh-card warn"><div class="adh-lbl">Medication adherence — diabetes</div><div class="adh-val red">71.2%</div><div class="adh-bench">State avg: 78.4%</div><span class="pill pill-red" style="margin-top:4px">−7.2 pts below state</span></div>
+    <div class="adh-card warn"><div class="adh-lbl">Medication adherence — hypertension</div><div class="adh-val red">74.8%</div><div class="adh-bench">State avg: 80.1%</div><span class="pill pill-red" style="margin-top:4px">−5.3 pts below state</span></div>
+    <div class="adh-card caution"><div class="adh-lbl">SUPD — schizophrenia</div><div class="adh-val amber">64.3%</div><div class="adh-bench">State avg: 66.9%</div><span class="pill pill-amber" style="margin-top:4px">−2.6 pts below state</span></div>
+    <div class="adh-card ok"><div class="adh-lbl">COB adherence</div><div class="adh-val green">82.1%</div><div class="adh-bench">State avg: 80.5%</div><span class="pill pill-green" style="margin-top:4px">+1.6 pts above state</span></div>
+    <div class="adh-card caution"><div class="adh-lbl">Asthma controller use</div><div class="adh-val amber">67.9%</div><div class="adh-bench">State avg: 71.2%</div><span class="pill pill-amber" style="margin-top:4px">−3.3 pts below state</span></div>
+  </div>
+  <div class="panel-row c22">
+    <div class="panel">
+      <div class="panel-title">Polypharmacy — members at risk</div>
+      <div class="panel-sub" style="margin-bottom:10px">Members on 8+ or 10+ concurrent medications</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div class="sum-box"><div class="sum-val" style="color:#374151">14.2%</div><div class="sum-lbl">Members on 8+ meds</div><div class="sum-bench" style="color:#374151">State avg: 11.8%</div></div>
+        <div class="sum-box"><div class="sum-val" style="color:#374151">8.6%</div><div class="sum-lbl">Members on 10+ meds</div><div class="sum-bench" style="color:#374151">State avg: 5.9%</div></div>
+      </div>
+      <table>
+        <thead><tr><th>Polypharmacy tier</th><th class="r">Members</th><th class="r">Medicaid</th><th class="r">Medicare</th><th>Risk flag</th></tr></thead>
+        <tbody>
+          <tr><td>8–9 concurrent meds</td><td class="r">68</td><td class="r">41</td><td class="r">27</td><td><span class="pill pill-amber">Automated review</span></td></tr>
+          <tr><td>10+ concurrent meds</td><td class="r">41</td><td class="r">22</td><td class="r">19</td><td><span class="pill pill-red">Pharmacist touch</span></td></tr>
+        </tbody>
+      </table>
+      <a style="color:#00548C;font-size:11.5px;text-decoration:none;font-weight:600;cursor:default;display:block;margin-top:8px">Right click and drill through</a>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Mail order &amp; 90-day supply utilization</div>
+      <div class="panel-sub" style="margin-bottom:10px">Maintenance medications — preferred channel fill rates · Orange marker = state average</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+        <div class="sum-box"><div class="sum-val" style="color:#374151">34.1%</div><div class="sum-lbl">90-day supply rate</div><div class="sum-bench">State avg: 41.3%</div></div>
+        <div class="sum-box"><div class="sum-val" style="color:#374151">18.7%</div><div class="sum-lbl">Mail order rate</div><div class="sum-bench">State avg: 24.1%</div></div>
+      </div>
+      <div class="legend-row" style="margin-bottom:6px">
+        <span class="leg-item"><span class="leg-sq" style="background:#9E2234"></span>Below state avg</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#8DB041"></span>At / above state avg</span>
+        <span class="leg-item"><span style="display:inline-block;width:10px;height:10px;background:#F37021;border-radius:2px"></span>&nbsp;State avg</span>
+      </div>
+      <div style="position:relative;width:100%;height:220px"><canvas id="mailOrderBar"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE 5: MEMBER DETAIL ══════════ -->
+<div class="main" id="page-members">
+  <div class="ctx-bar">
+    <div class="ctx-text">Drillthrough: <strong>Bluegrass Family Health (TIN 421...)</strong> &nbsp;|&nbsp; Filter: <strong>TI Opportunity + Adherence Gap + Polypharmacy Flag</strong> &nbsp;|&nbsp; Market: Kentucky</div>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:14px">
+    <div class="kpi"><div class="kpi-lbl">Members shown</div><div class="kpi-val">124</div></div>
+    <div class="kpi"><div class="kpi-lbl">Total est. savings</div><div class="kpi-val" style="color:#374151">$48,200</div></div>
+    <div class="kpi"><div class="kpi-lbl">Adherence gap flags</div><div class="kpi-val" style="color:#374151">38</div></div>
+    <div class="kpi"><div class="kpi-lbl">Polypharmacy flags</div><div class="kpi-val" style="color:#374151">41</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-hdr">
+      <div>
+        <div class="panel-title">Member-level action list</div>
+        <div class="panel-sub" id="member-sort-status">PHI — Row-Level Security enforced &nbsp;|&nbsp; Sorted by est. savings (highest first) &nbsp;|&nbsp; Click any column header to re-sort</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="act-btn act-btn-green">Export to CSV</button>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table id="member-table">
+        <thead>
+          <tr id="member-thead-row"></tr>
+        </thead>
+        <tbody id="member-tbody"></tbody>
+      </table>
+    </div>
+    <div class="table-footer">
+      <span style="font-size:11px;color:#9ca3af" id="member-count-label">Showing 14 of 124 members</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// PAGE NAVIGATION
+// ─────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.main').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const map = {overview:0,trends:1,drivers:2,quality:3,members:4};
+  document.querySelectorAll('.nav-tab')[map[id]].classList.add('active');
+  if (id==='trends' && !window._trendsBuilt) { buildTrends(); window._trendsBuilt=true; }
+  if (id==='drivers' && !window._driversBuilt) { buildDrivers(); window._driversBuilt=true; }
+  if (id==='quality' && !window._qualityBuilt) { buildQualityCharts(); window._qualityBuilt=true; }
+}
+
+// ─────────────────────────────────────────────
+// KPI DATA DEFINITIONS
+// ─────────────────────────────────────────────
+const groups = ['Bluegrass Family Hlth','Mountain View Med','Lexington Primary Care','Cumberland Health','River Valley Assoc','Appalachian Clinic','Central KY Partners','Tri-County Medical'];
+
+const KPI_CONFIG = {
+  pmpm: {
+    barTitle: 'Rx PMPM by provider group vs. expected average',
+    barSub:   'Higher = more Rx spend per member per month vs. Kentucky expected avg ($111.55)',
+    barData:  [127,119,116,108,106,98,95,89],
+    barExpected: 111.55,
+    barFmt:   v => '$' + v,
+    barColors: v => v > 111.55 ? '#9E2234' : '#8DB041',
+    barLegend: ['#9E2234','Above expected avg','#8DB041','At / below expected avg','#d1d5db','Expected avg $111.55'],
+    donutTitle:'Drug mix — % of total Rx cost',
+    donutSub:  'Generic vs. brand vs. specialty cost breakdown',
+    donutData: [52,28,20],
+    donutLabels:['Generic','Brand','Specialty'],
+    donutColors:['#00548C','#00AEEF','#F37021'],
+    benchNote: 'State avg mix: Generic 61% | Brand 26% | Specialty 13%<br><strong>Generic gap: −9 pts &nbsp;·&nbsp; Specialty gap: +7 pts</strong>'
+  },
+  gfr: {
+    barTitle: 'Generic Fill Rate % by provider group vs. state average',
+    barSub:   'Higher is better — state average is 87.7% (Kentucky)',
+    barData:  [81.3,84.2,86.0,87.1,88.4,89.2,90.1,91.5],
+    barExpected: 87.7,
+    barFmt:   v => v + '%',
+    barColors: v => v < 87.7 ? '#9E2234' : '#8DB041',
+    barLegend: ['#9E2234','Below state avg (opportunity)','#8DB041','At / above state avg','#d1d5db','State avg 87.7%'],
+    donutTitle:'Generic fill breakdown — Bluegrass Family Health',
+    donutSub:  'Of all Rx claims: generic filled vs. opportunity (brand written, generic available)',
+    donutData: [81,12,7],
+    donutLabels:['Generic filled','Brand w/ generic avail.','Brand only'],
+    donutColors:['#00548C','#00AEEF','#F37021'],
+    benchNote: 'State avg GFR: 87.7% &nbsp;·&nbsp; Gap: −6.4 pts<br><strong>Est. annual savings closing gap: $22,400</strong>'
+  },
+  rpm: {
+    barTitle: 'Rx claims per member per month by provider group',
+    barSub:   'Higher may indicate over-utilization — state avg is 3.8 scripts/member/mo',
+    barData:  [4.2,4.0,3.9,3.8,3.7,3.6,3.5,3.2],
+    barExpected: 3.8,
+    barFmt:   v => v.toFixed(1),
+    barColors: v => v > 3.8 ? '#9E2234' : '#8DB041',
+    barLegend: ['#9E2234','Above state avg (high utilization)','#8DB041','At / below state avg','#d1d5db','State avg 3.8'],
+    donutTitle:'Rx claim volume by drug type — Bluegrass Family Health',
+    donutSub:  'Share of total claim count by maintenance vs. acute vs. specialty',
+    donutData: [58,29,13],
+    donutLabels:['Maintenance','Acute / short-term','Specialty'],
+    donutColors:['#00548C','#00AEEF','#F37021'],
+    benchNote: 'State avg: 3.8 Rx/member/mo &nbsp;·&nbsp; This group: 4.2 (+10.5%)<br><strong>Driven by: higher maintenance drug volume (+0.3) and specialty claims (+0.1)</strong>'
+  },
+  cpc: {
+    barTitle: 'Average cost per Rx claim by provider group vs. state average',
+    barSub:   'Reflects ingredient cost — state avg is $28.05 per claim (Kentucky)',
+    barData:  [30.32,29.80,29.10,28.40,27.90,27.50,26.80,25.60],
+    barExpected: 28.05,
+    barFmt:   v => '$' + v.toFixed(2),
+    barColors: v => v > 28.05 ? '#9E2234' : '#8DB041',
+    barLegend: ['#9E2234','Above state avg (high unit cost)','#8DB041','At / below state avg','#d1d5db','State avg $28.05'],
+    donutTitle:'Cost per claim concentration — Bluegrass Family Health',
+    donutSub:  'Share of total cost by drug cost tier',
+    donutData: [18,44,38],
+    donutLabels:['Low cost (<$15)','Mid cost ($15–$50)','High cost (>$50)'],
+    donutColors:['#00548C','#00AEEF','#F37021'],
+    benchNote: 'State avg cost/claim: $28.05 &nbsp;·&nbsp; This group: $30.32 (+8.1%)<br><strong>Primary driver: higher specialty drug ingredient costs (+$4.20 vs. state)</strong>'
+  },
+  pdl: {
+    barTitle: 'PDL / Formulary compliance % by provider group vs. state average',
+    barSub:   'Higher is better — % of scripts written on preferred drug list (state avg 86.9%)',
+    barData:  [88.4,87.9,87.2,86.8,86.1,85.4,84.7,83.2],
+    barExpected: 86.9,
+    barFmt:   v => v + '%',
+    barColors: v => v < 86.9 ? '#9E2234' : '#8DB041',
+    barLegend: ['#9E2234','Below state avg (off-formulary risk)','#8DB041','At / above state avg','#d1d5db','State avg 86.9%'],
+    donutTitle:'PDL compliance breakdown — Bluegrass Family Health',
+    donutSub:  'Of all scripts: on-formulary vs. off-formulary breakdown',
+    donutData: [88,8,4],
+    donutLabels:['On formulary','Off formulary — alternative exists','Off formulary — no alternative'],
+    donutColors:['#00548C','#00AEEF','#F37021'],
+    benchNote: 'PDL compliance: 88.4% (above state avg 86.9%) &nbsp;·&nbsp; <strong style="color:#166534">On target</strong><br>8% of off-formulary scripts have a PDL alternative available — education opportunity'
+  },
+  d90: {
+    barTitle: '90-day refill rate % by provider group vs. state average',
+    barSub:   'Higher is better — maintenance drugs dispensed as 90-day supply (state avg 41.3%)',
+    barData:  [34.1,36.4,38.2,40.1,41.8,43.2,44.7,46.0],
+    barExpected: 41.3,
+    barFmt:   v => v + '%',
+    barColors: v => v < 41.3 ? '#9E2234' : '#8DB041',
+    barLegend: ['#9E2234','Below state avg (adherence risk)','#8DB041','At / above state avg','#d1d5db','State avg 41.3%'],
+    donutTitle:'90-day supply adoption by drug class — Bluegrass Family Health',
+    donutSub:  'Maintenance drug classes: % already on 90-day vs. 30-day supply',
+    donutData: [34,49,17],
+    donutLabels:['90-day supply','30-day (convert opportunity)','Mail order 90-day'],
+    donutColors:['#00548C','#00AEEF','#F37021'],
+    benchNote: 'State avg 90-day rate: 41.3% &nbsp;·&nbsp; This group: 34.1% (−7.2 pts)<br><strong>49% of maintenance scripts remain on 30-day supply — highest conversion opportunity</strong>'
+  }
+};
+
+// ─────────────────────────────────────────────
+// CHART INSTANCES
+// ─────────────────────────────────────────────
+let barChart = null;
+let donutChart = null;
+let activeKPI = 'pmpm';
+
+function buildOverviewCharts() {
+  const cfg = KPI_CONFIG['pmpm'];
+
+  barChart = new Chart(document.getElementById('mainBar'), {
+    type: 'bar',
+    data: {
+      labels: groups,
+      datasets: [
+        { label: 'Provider', data: cfg.barData, backgroundColor: cfg.barData.map(cfg.barColors), borderRadius: 3, borderSkipped: false },
+        { label: 'Expected Avg', data: Array(8).fill(cfg.barExpected), backgroundColor: 'rgba(156,163,175,0.6)', borderRadius: 3, borderSkipped: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + cfg.barFmt(ctx.raw) } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { callback: v => cfg.barFmt(v), font: { size: 10 }, color: '#9ca3af' }, border: { display: false } },
+        y: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#6b7280' }, border: { display: false } }
+      },
+      animation: { duration: 400 }
+    }
+  });
+
+  donutChart = new Chart(document.getElementById('mainDonut'), {
+    type: 'doughnut',
+    data: {
+      labels: cfg.donutLabels,
+      datasets: [{ data: cfg.donutData, backgroundColor: cfg.donutColors, borderWidth: 3, borderColor: '#fff' }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '65%',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.raw + '%' } } },
+      animation: { duration: 400 }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────
+// KPI SELECTION → CHART UPDATE
+// ─────────────────────────────────────────────
+function selectKPI(key) {
+  if (key === activeKPI) return;
+  activeKPI = key;
+  const cfg = KPI_CONFIG[key];
+
+  // Update card selection state
+  document.querySelectorAll('.kpi').forEach(k => k.classList.remove('selected'));
+  document.getElementById('kpi-' + key).classList.add('selected');
+
+  // Update hint tag
+  const labels = { pmpm:'Rx PMPM', gfr:'Generic Fill Rate', rpm:'Rx per Member/Mo', cpc:'Cost per Claim', pdl:'PDL Compliance', d90:'90-Day Refill %' };
+  document.getElementById('kpi-hint-tag').textContent = 'Viewing: ' + labels[key];
+
+  // Update context strips
+  document.getElementById('bar-ctx-title').textContent = cfg.barTitle;
+  document.getElementById('bar-ctx-sub').textContent = cfg.barSub;
+  document.getElementById('donut-ctx-title').textContent = cfg.donutTitle;
+  document.getElementById('donut-ctx-sub').textContent = cfg.donutSub;
+
+  // Update bench note
+  document.getElementById('bench-note').innerHTML = cfg.benchNote;
+
+  // Update bar legend
+  document.getElementById('bar-legend').innerHTML =
+    '<span class="leg-item"><span class="leg-sq" style="background:' + cfg.barLegend[0] + '"></span>' + cfg.barLegend[1] + '</span>' +
+    '<span class="leg-item"><span class="leg-sq" style="background:' + cfg.barLegend[2] + '"></span>' + cfg.barLegend[3] + '</span>' +
+    '<span class="leg-item"><span class="leg-sq" style="background:' + cfg.barLegend[4] + '"></span>' + cfg.barLegend[5] + '</span>';
+
+  // Update donut legend
+  document.getElementById('donut-legend').innerHTML = cfg.donutLabels.map((lbl, i) =>
+    '<span class="leg-item"><span class="leg-sq" style="background:' + cfg.donutColors[i] + '"></span>' +
+    lbl + ' ' + cfg.donutData[i] + '%</span>'
+  ).join('');
+
+  // Animate bar chart update
+  barChart.data.datasets[0].data = cfg.barData;
+  barChart.data.datasets[0].backgroundColor = cfg.barData.map(cfg.barColors);
+  barChart.data.datasets[1].data = Array(8).fill(cfg.barExpected);
+  barChart.options.plugins.tooltip.callbacks.label = ctx => ' ' + cfg.barFmt(ctx.raw);
+  barChart.options.scales.x.ticks.callback = v => cfg.barFmt(v);
+  barChart.update();
+
+  // Animate donut update
+  donutChart.data.labels = cfg.donutLabels;
+  donutChart.data.datasets[0].data = cfg.donutData;
+  donutChart.data.datasets[0].backgroundColor = cfg.donutColors;
+  donutChart.update();
+}
+
+// ─────────────────────────────────────────────
+// TRENDS CHARTS
+// ─────────────────────────────────────────────
+function buildTrends() {
+  const months = ['Mar-25','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan-26','Feb','Mar-26'];
+  new Chart(document.getElementById('trendLine'), {
+    type: 'line',
+    data: { labels: months, datasets: [
+      { label: 'Bluegrass Family Health', data: [110,111,113,112,114,115,118,118,120,119,122,125,127], borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.05)', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#2563eb', tension: 0.3, fill: true },
+      { label: 'Expected Avg', data: [106,107,107,108,108,109,109,110,110,111,111,113,112], borderColor: '#9ca3af', borderWidth: 1.5, borderDash: [5,4], pointRadius: 2, pointBackgroundColor: '#9ca3af', tension: 0.3, fill: false }
+    ]},
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' $' + ctx.raw } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#9ca3af', maxRotation: 45 }, border: { display: false } },
+        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => '$' + v, font: { size: 10 }, color: '#9ca3af' }, border: { display: false }, min: 95 }
+      }
+    }
+  });
+  // PMPM Decomposition Waterfall
+  const wfLabels = ['Expected\n$111.55', 'Drug mix\nshift', 'Utilization\n(Rx/member)', 'Unit cost\n(cost/claim)', 'PDL\noffset', 'This group\n$127.40'];
+  const stateBase = 111.55;
+  const drivers = [7.20, 5.60, 3.05, -0.40];
+  const wfData = [];
+  const wfColors = [];
+  const wfFloat = [];
+  let running = stateBase;
+  wfFloat.push(0); wfData.push(stateBase); wfColors.push('#00548C');
+  drivers.forEach((d, i) => {
+    const isNeg = d < 0;
+    wfFloat.push(isNeg ? running + d : running);
+    wfData.push(Math.abs(d));
+    wfColors.push(isNeg ? '#8DB041' : (i === 2 ? '#DBAE48' : '#9E2234'));
+    running += d;
+  });
+  wfFloat.push(0); wfData.push(running); wfColors.push('#9E2234');
+
+  new Chart(document.getElementById('decompWaterfall'), {
+    type: 'bar',
+    data: {
+      labels: ['Expected avg', 'Drug mix shift', 'Utilization', 'Unit cost', 'PDL offset', 'This group'],
+      datasets: [
+        { label: 'Base', data: wfFloat, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 0 },
+        { label: 'Driver', data: wfData, backgroundColor: wfColors, borderRadius: 3, borderSkipped: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              if (ctx.datasetIndex === 0) return null;
+              const labels2 = ['Expected ($111.55)', 'Drug mix: +$7.20 (45% of gap)', 'Utilization: +$5.60 (35% of gap)', 'Unit cost: +$3.05 (19% of gap)', 'PDL offset: $0.00', 'This group ($127.40)'];
+              return ' ' + labels2[ctx.dataIndex];
+            },
+            title: () => null
+          }
+        }
+      },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 }, color: '#6b7280' }, border: { display: false } },
+        y: { stacked: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => '$' + v, font: { size: 10 }, color: '#9ca3af' }, border: { display: false }, min: 100, max: 135 }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('stackedCol'), {
+    type: 'bar',
+    data: { labels: months, datasets: [
+      { label: 'Generic', data: [62,63,62,62,60,60,59,58,57,57,57,55,52], backgroundColor: '#00548C', stack: 'a' },
+      { label: 'Brand',   data: [24,23,24,24,25,25,25,26,26,25,25,27,28], backgroundColor: '#00AEEF', stack: 'a' },
+      { label: 'Specialty',data:[14,14,14,14,15,15,16,16,17,17,18,18,20], backgroundColor: '#F37021', stack: 'a' }
+    ]},
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { mode: 'index' } },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 9 }, color: '#9ca3af', maxRotation: 45 }, border: { display: false } },
+        y: { stacked: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v + '%', font: { size: 10 }, color: '#9ca3af' }, border: { display: false } }
+      }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────
+// COST DRIVER CHARTS
+// ─────────────────────────────────────────────
+function buildDrivers() {
+  new Chart(document.getElementById('drugBar'), {
+    type: 'bar',
+    data: {
+      labels: ['Ozempic','Humira','Jardiance','Eliquis','Dupixent','Lantus','Trulicity','Xarelto','Enbrel','Metformin'],
+      datasets: [{ data: [42800,38200,34100,28600,24300,19800,17200,15400,12600,4200], backgroundColor: ['#F37021','#F37021','#00AEEF','#00AEEF','#F37021','#00AEEF','#00548C','#00AEEF','#F37021','#00548C'], borderRadius: 3, borderSkipped: false }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' $' + ctx.raw.toLocaleString() } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'K', font: { size: 9 }, color: '#9ca3af' }, border: { display: false } },
+        y: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#6b7280' }, border: { display: false } }
+      }
+    }
+  });
+  new Chart(document.getElementById('gfrBar'), {
+    type: 'bar',
+    data: {
+      labels: ['This Group', 'State Avg'],
+      datasets: [{ data: [81.3, 87.7], backgroundColor: ['#9E2234', '#00548C'], borderRadius: 4, borderSkipped: false, barThickness: 52 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.raw + '%' } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' }, border: { display: false } },
+        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v + '%', font: { size: 10 }, color: '#9ca3af' }, border: { display: false }, min: 75, max: 95 }
+      }
+    }
+  });
+}
+
+function toggleDrugView(btn, view) {
+  btn.closest('.toggle-group').querySelectorAll('.tog-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  const ch = Chart.getChart('drugBar');
+  if (!ch) return;
+  if (view === 'drug') {
+    ch.data.labels = ['Ozempic','Humira','Jardiance','Eliquis','Dupixent','Lantus','Trulicity','Xarelto','Enbrel','Metformin'];
+    ch.data.datasets[0].data = [42800,38200,34100,28600,24300,19800,17200,15400,12600,4200];
+    ch.data.datasets[0].backgroundColor = ['#F37021','#F37021','#00AEEF','#00AEEF','#F37021','#00AEEF','#00548C','#00AEEF','#F37021','#00548C'];
+  } else {
+    ch.data.labels = ['Specialty/Biologic','GLP-1 / Diabetes','SGLT2 / Diabetes','Anticoagulant','Cardiovascular','Statin','Antidiabetic','Antihypertensive','Rheumatology','Other'];
+    ch.data.datasets[0].data = [74300,61500,48200,38400,32100,28600,22400,18700,15300,9800];
+    ch.data.datasets[0].backgroundColor = ['#F37021','#F37021','#00AEEF','#00AEEF','#00AEEF','#00548C','#00AEEF','#00548C','#F37021','#9ca3af'];
+  }
+  ch.update();
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// MEMBER TABLE — SORTABLE
+// ─────────────────────────────────────────────
+
+const MEMBER_DATA = [
+  { name:'D. Washington',  id:'MBR-009102', provider:'Dr. T. Mobley', drug:'Humira 40mg',        class:'Biologic / TNF',       opp:'Biosimilar switch',  action:'Switch → Hadlima',        pa:'Step therapy', savings:1083, flags:['polyph'],           fill:'Jan 28, 2026' },
+  { name:'J. Harrington',  id:'MBR-004821', provider:'Dr. T. Mobley', drug:'Jardiance 10mg',      class:'SGLT2 / Diabetes',      opp:'TI opportunity',     action:'Switch → Metformin XR',   pa:'No',           savings:624,  flags:['adh'],              fill:'Feb 14, 2026' },
+  { name:'M. Castillo',    id:'MBR-007334', provider:'Dr. R. Nguyen', drug:'Ozempic 0.5mg',       class:'GLP-1 / Diabetes',      opp:'TI opportunity',     action:'Switch → Trulicity',      pa:'No',           savings:601,  flags:['polyph'],           fill:'Mar 2, 2026'  },
+  { name:'P. Okonkwo',     id:'MBR-003817', provider:'Dr. A. Singh',  drug:'Eliquis 5mg',         class:'Anticoagulant',         opp:'TI opportunity',     action:'Switch → Warfarin',       pa:'No',           savings:594,  flags:['adh','highmeds'],   fill:'Feb 8, 2026'  },
+  { name:'S. Brinkman',    id:'MBR-011246', provider:'Dr. R. Nguyen', drug:'Ozempic 1mg',         class:'GLP-1 / Diabetes',      opp:'TI opportunity',     action:'Switch → Trulicity',      pa:'No',           savings:587,  flags:[],                   fill:'Mar 10, 2026' },
+  { name:'R. Patel',       id:'MBR-005512', provider:'Dr. A. Singh',  drug:'Jardiance 25mg',      class:'SGLT2 / Diabetes',      opp:'TI opportunity',     action:'Switch → Metformin XR',   pa:'No',           savings:578,  flags:['adh'],              fill:'Feb 28, 2026' },
+  { name:'C. Flores',      id:'MBR-008821', provider:'Dr. T. Mobley', drug:'Humira 40mg',         class:'Biologic / TNF',        opp:'Biosimilar switch',  action:'Switch → Hadlima',        pa:'Step therapy', savings:541,  flags:['polyph'],           fill:'Mar 1, 2026'  },
+  { name:'G. Thompson',    id:'MBR-002244', provider:'Dr. R. Nguyen', drug:'Eliquis 2.5mg',       class:'Anticoagulant',         opp:'TI opportunity',     action:'Switch → Warfarin',       pa:'No',           savings:498,  flags:[],                   fill:'Jan 15, 2026' },
+  { name:'A. Kim',         id:'MBR-013390', provider:'Dr. A. Singh',  drug:'Ozempic 0.5mg',       class:'GLP-1 / Diabetes',      opp:'TI opportunity',     action:'Switch → Trulicity',      pa:'No',           savings:476,  flags:['adh'],              fill:'Mar 7, 2026'  },
+  { name:'B. Martinez',    id:'MBR-006103', provider:'Dr. T. Mobley', drug:'Dupixent 300mg',      class:'Biologic / Asthma',     opp:'PA reduction',       action:'Educate on step therapy', pa:'Yes — CMS',    savings:0,    flags:['adh'],              fill:'Feb 19, 2026' },
+  { name:'L. Petrov',      id:'MBR-006659', provider:'Dr. A. Singh',  drug:'Dupixent 300mg',      class:'Biologic / Asthma',     opp:'PA reduction',       action:'Educate on step therapy', pa:'Yes — CMS',    savings:0,    flags:['adh'],              fill:'Feb 21, 2026' },
+  { name:'F. Chen',        id:'MBR-009871', provider:'Dr. R. Nguyen', drug:'Linzess 145mcg',      class:'GI / IBS-C',            opp:'PA reduction',       action:'Step therapy counseling', pa:'Yes',          savings:0,    flags:[],                   fill:'Mar 3, 2026'  },
+  { name:'W. Johnson',     id:'MBR-004418', provider:'Dr. T. Mobley', drug:'Enbrel 50mg',         class:'Biologic / Rheumatology',opp:'Biosimilar switch',  action:'Switch → Erelzi',         pa:'Step therapy', savings:392,  flags:['polyph','highmeds'],fill:'Jan 22, 2026' },
+  { name:'T. Osei',        id:'MBR-008443', provider:'Dr. T. Mobley', drug:'Atorvastatin 40mg',   class:'Statin / Cardiac',      opp:'90-day supply',      action:'Convert to 90-day mail',  pa:'No',           savings:144,  flags:['polyph'],           fill:'Mar 5, 2026'  },
+];
+
+const COLUMNS = [
+  { key:'name',     label:'Member',         sortKey: r => r.name,                         align:'left'  },
+  { key:'provider', label:'Provider',        sortKey: r => r.provider,                     align:'left'  },
+  { key:'drug',     label:'Current drug',    sortKey: r => r.drug,                         align:'left'  },
+  { key:'class',    label:'Therapy class',   sortKey: r => r.class,                        align:'left'  },
+  { key:'opp',      label:'Opportunity',     sortKey: r => r.opp,                          align:'left'  },
+  { key:'action',   label:'Suggested action',sortKey: r => r.action,                       align:'left'  },
+  { key:'pa',       label:'PA req.',         sortKey: r => r.pa,                           align:'left'  },
+  { key:'savings',  label:'Est. savings',    sortKey: r => r.savings,                      align:'right' },
+  { key:'flags',    label:'Flags',           sortKey: r => r.flags.join(','),              align:'left'  },
+  { key:'fill',     label:'Last fill',       sortKey: r => new Date(r.fill),               align:'left'  },
+];
+
+let memberSortCol = 'savings';
+let memberSortDir = -1; // -1 = desc, 1 = asc
+let memberPage_idx = 0;
+const PAGE_SIZE = 7;
+
+function flagsHTML(flags) {
+  if (!flags.length) return '<span style="color:#9ca3af">—</span>';
+  return flags.map(f => {
+    if (f === 'adh')      return '<span class="pill pill-red" style="margin:1px">Adh. gap</span>';
+    if (f === 'polyph')   return '<span class="pill pill-amber" style="margin:1px">Polyph.</span>';
+    if (f === 'highmeds') return '<span class="pill pill-red" style="margin:1px">10+ meds</span>';
+    return '';
+  }).join('');
+}
+
+function paHTML(pa) {
+  if (pa === 'No')            return '<span class="pill pill-green">No</span>';
+  if (pa === 'Yes — CMS')     return '<span class="pill pill-red">Yes — CMS</span>';
+  if (pa === 'Yes')           return '<span class="pill pill-red">Yes</span>';
+  if (pa === 'Step therapy')  return '<span class="pill pill-amber">Step therapy</span>';
+  return pa;
+}
+
+function oppHTML(opp) {
+  if (opp === 'TI opportunity')    return '<span class="pill pill-blue">TI opportunity</span>';
+  if (opp === 'Biosimilar switch') return '<span class="pill pill-blue">Biosimilar switch</span>';
+  if (opp === 'PA reduction')      return '<span class="pill pill-amber">PA reduction</span>';
+  if (opp === '90-day supply')     return '<span class="pill pill-green">90-day supply</span>';
+  return opp;
+}
+
+function savingsHTML(s) {
+  if (s === 0) return '<span style="color:#9ca3af">—</span>';
+  return '<span style="font-weight:600;color:#166534">$' + s.toLocaleString() + '</span>';
+}
+
+function sortIndicator(key) {
+  if (key !== memberSortCol) return '<span style="color:rgba(0,0,0,0.15);font-size:10px;margin-left:4px;user-select:none">⇅</span>';
+  return memberSortDir === -1
+    ? '<span style="color:#2563eb;font-size:10px;margin-left:4px">↓</span>'
+    : '<span style="color:#2563eb;font-size:10px;margin-left:4px">↑</span>';
+}
+
+function renderMemberTable() {
+  const col = COLUMNS.find(c => c.key === memberSortCol);
+  const sorted = [...MEMBER_DATA].sort((a, b) => {
+    const av = col.sortKey(a), bv = col.sortKey(b);
+    if (av < bv) return -1 * memberSortDir;
+    if (av > bv) return  1 * memberSortDir;
+    return 0;
+  });
+
+  // Header
+  const thead = document.getElementById('member-thead-row');
+  thead.innerHTML = COLUMNS.map(c => {
+    const active = c.key === memberSortCol;
+    return `<th class="${c.align==='right'?'r':''}" style="cursor:pointer;white-space:nowrap;${active?'color:#1e3a8a;background:#eff6ff':''}" onclick="sortMembers('${c.key}')">${c.label}${sortIndicator(c.key)}</th>`;
+  }).join('');
+
+  // Body — paginated
+  const start = memberPage_idx * PAGE_SIZE;
+  const page = sorted.slice(start, start + PAGE_SIZE);
+  const tbody = document.getElementById('member-tbody');
+  tbody.innerHTML = page.map(r => `
+    <tr>
+      <td><div class="m-name">${r.name}</div><div class="m-id">${r.id}</div></td>
+      <td class="muted">${r.provider}</td>
+      <td style="font-weight:600">${r.drug}</td>
+      <td class="muted">${r.class}</td>
+      <td>${oppHTML(r.opp)}</td>
+      <td style="font-size:10px">${r.action}</td>
+      <td>${paHTML(r.pa)}</td>
+      <td class="r">${savingsHTML(r.savings)}</td>
+      <td><div style="display:flex;gap:3px;flex-wrap:wrap">${flagsHTML(r.flags)}</div></td>
+      <td class="muted">${r.fill}</td>
+    </tr>`).join('');
+
+  // Footer
+  const colLabel = COLUMNS.find(c => c.key === memberSortCol).label;
+  const dirLabel = memberSortDir === -1 ? 'highest first' : 'lowest first';
+  document.getElementById('member-sort-status').innerHTML =
+    `PHI — Row-Level Security enforced &nbsp;|&nbsp; Sorted by <strong>${colLabel}</strong> (${dirLabel}) &nbsp;|&nbsp; Click any column header to re-sort`;
+  document.getElementById('member-count-label').textContent =
+    `Showing ${start+1}–${Math.min(start+PAGE_SIZE, MEMBER_DATA.length)} of ${MEMBER_DATA.length} members`;
+
+  // page info
+}
+
+function sortMembers(key) {
+  if (key === memberSortCol) {
+    memberSortDir *= -1;
+  } else {
+    memberSortCol = key;
+    // Numeric cols default desc, text cols default asc
+    memberSortDir = (key === 'savings') ? -1 : 1;
+  }
+  memberPage_idx = 0;
+  renderMemberTable();
+}
+
+function memberPage(dir) {
+  const maxPage = Math.ceil(MEMBER_DATA.length / PAGE_SIZE) - 1;
+  memberPage_idx = Math.max(0, Math.min(maxPage, memberPage_idx + dir));
+  renderMemberTable();
+}
+
+// Render on first load
+renderMemberTable();
+
+window._trendsBuilt = false;
+window._driversBuilt = false;
+buildOverviewCharts();
+
+function buildQualityCharts() {
+  const mailLabels = ['Metformin', 'Lisinopril', 'Atorvastatin', 'Amlodipine', 'Levothyroxine'];
+  const mailVals   = [58, 52, 44, 31, 28];
+  const stateAvg   = 41.3;
+  const mailColors = mailVals.map(v => v >= stateAvg ? '#8DB041' : '#9E2234');
+
+  new Chart(document.getElementById('mailOrderBar'), {
+    type: 'bar',
+    data: {
+      labels: mailLabels,
+      datasets: [
+        { label: '90-day supply %', data: mailVals, backgroundColor: mailColors, borderRadius: 3, borderSkipped: false },
+        { label: 'State avg', data: Array(5).fill(stateAvg), backgroundColor: 'rgba(209,213,219,0.5)', borderRadius: 3, borderSkipped: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.raw + '%' } },
+        annotation: {
+          annotations: {
+            stateLine: {
+              type: 'line', scaleID: 'x', value: stateAvg,
+              borderColor: '#F37021', borderWidth: 2, borderDash: [4, 3],
+              label: { content: 'State avg 41.3%', display: true, position: 'start', font: { size: 9 }, color: '#F37021', backgroundColor: 'transparent' }
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { callback: v => v + '%', font: { size: 10 }, color: '#9ca3af' }, border: { display: false }, max: 80 },
+        y: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' }, border: { display: false } }
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>
