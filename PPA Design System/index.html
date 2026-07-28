@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PPA Dashboard Standards Reference - Home</title>
+<style>
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f5f5f5;margin:0;padding:0;color:#1a1a2e;line-height:1.6}
+.nav-bar{background:#00548C;color:#fff;padding:0 40px;box-shadow:0 2px 4px rgba(0,0,0,0.1);position:sticky;top:0;z-index:100}
+.nav-container{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-brand{font-size:18px;font-weight:600;color:#fff;text-decoration:none}
+.nav-links{display:flex;gap:30px;align-items:center}
+.nav-link{color:#fff;text-decoration:none;font-size:14px;font-weight:500;transition:opacity 0.2s;padding:8px 12px;border-radius:4px}
+.nav-link:hover{background:rgba(255,255,255,0.1)}
+.nav-link.active{background:rgba(255,255,255,0.2)}
+.container{max-width:1200px;margin:0 auto;padding:20px 40px;background:#fff;min-height:calc(100vh - 60px)}
+h1{color:#00548C;border-bottom:3px solid #00548C;padding-bottom:10px;margin-bottom:8px;font-size:32px}
+h2{color:#003D5C;margin-top:30px;margin-bottom:12px;font-size:24px}
+h3{color:#00548C;margin-top:30px;margin-bottom:15px;font-size:18px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;margin:30px 0}
+.card{border:1px solid #e5e7eb;border-radius:8px;padding:24px;background:#fff;transition:all 0.2s;cursor:pointer;text-decoration:none;color:inherit;display:block}
+.card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.1);transform:translateY(-2px);border-color:#00548C}
+.card-icon{font-size:32px;margin-bottom:12px}
+.card-title{font-size:18px;font-weight:600;color:#00548C;margin-bottom:8px}
+.card-description{font-size:14px;color:#6b7280;line-height:1.5}
+.page-desc{color:#6b7280;font-size:14px;margin-bottom:20px;line-height:1.5}
+.intro-title{font-weight:600;color:#00548C;margin-bottom:12px;font-size:16px}
+.feature-list{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:30px 0}
+.feature-item{display:flex;align-items:start;gap:12px;padding:12px;background:#f9fafb;border-radius:6px}
+.feature-icon{color:#00548C;font-size:20px;margin-top:2px}
+.feature-text{font-size:14px;color:#374151}
+.footer{margin-top:60px;padding-top:30px;border-top:2px solid #e5e7eb;text-align:center;color:#9ca3af;font-size:12px}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<div class="nav-bar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-brand">PPA Dashboard Standards</a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="shell.html" class="nav-link">Shell</a>
+      <a href="colors.html" class="nav-link">Colors & Fonts</a>
+      <a href="layouts.html" class="nav-link">Components</a>
+      <a href="filters.html" class="nav-link">Filters</a>
+      <a href="best-practices.html" class="nav-link">Best Practices</a>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+  <h1>PPA Dashboard Standards Reference</h1>
+  
+  <p class="page-desc">This interactive reference guide provides everything you need to build consistent, branded dashboards aligned with Centene's BI Design System. Navigate through the sections below to explore colors, components, layouts, and chart patterns.</p>
+
+  <h2>How Will You Build Your Dashboard</h2>
+  
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:30px 0">
+    <div class="card" style="cursor:default;background:#f0f7ff">
+      <div class="card-title">HTML Based Dashboards</div>
+      <div class="card-description">Use this guide to copy HTML for a dashboard framework, charts, colors and fonts.</div>
+      <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
+        <a href="shell.html" style="color:#00548C;text-decoration:none;font-weight:600;font-size:14px">→ Dashboard Shell</a>
+        <a href="colors.html" style="color:#00548C;text-decoration:none;font-weight:600;font-size:14px">→ Colors & Fonts</a>
+        <a href="layouts.html" style="color:#00548C;text-decoration:none;font-weight:600;font-size:14px">→ Components</a>
+        <a href="filters.html" style="color:#00548C;text-decoration:none;font-weight:600;font-size:14px">→ Filters</a>
+        <a href="best-practices.html" style="color:#00548C;text-decoration:none;font-weight:600;font-size:14px">→ Best Practices</a>
+      </div>
+    </div>
+    
+    <a href="https://centene.sharepoint.com/teams/CenteneDataAnalytics/SitePages/bi-design-system--01-quick-start.aspx" target="_blank" class="card" style="background:#f0f7ff">
+      <div class="card-title">Power BI Dashboards</div>
+      <div class="card-description">Use the Power BI Template located at this link to start your development.</div>
+      <div style="margin-top:16px;color:#00548C;font-weight:600;font-size:14px">→ Download the Power BI Template</div>
+    </a>
+  </div>
+
+  <h2>Key Features</h2>
+  
+  <div class="feature-list">
+    <div class="feature-item">
+      <div class="feature-icon">✅</div>
+      <div class="feature-text"><strong>Brand Compliant</strong> - Uses official Centene BI Design System colors</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">✅</div>
+      <div class="feature-text"><strong>Visual Examples</strong> - Live components and color swatches</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">✅</div>
+      <div class="feature-text"><strong>Copy-Paste Ready</strong> - All code examples work as-is</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">✅</div>
+      <div class="feature-text"><strong>Accessible</strong> - Meets WCAG contrast requirements</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">✅</div>
+      <div class="feature-text"><strong>Consistent</strong> - Standardized patterns and components</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">✅</div>
+      <div class="feature-text"><strong>Easy to Use</strong> - Clear documentation and examples</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p><strong>Dashboard Standards Reference</strong></p>
+    <p>Provider Engagement Care Management Dashboards</p>
+    <p style="margin-top:10px">Colors based on <strong>Centene BI Design System</strong></p>
+    <p style="margin-top:10px">Last Updated: July 7, 2026 | Version 1.0</p>
+  </div>
+
+</div>
+
+</body>
+</html>

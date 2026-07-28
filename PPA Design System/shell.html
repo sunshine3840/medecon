@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shell - PPA Dashboard Standards Reference</title>
+<style>
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f5f5f5;margin:0;padding:0;color:#1a1a2e;line-height:1.6}
+.nav-bar{background:#00548C;color:#fff;padding:0 40px;box-shadow:0 2px 4px rgba(0,0,0,0.1);position:sticky;top:0;z-index:100}
+.nav-container{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-brand{font-size:18px;font-weight:600;color:#fff;text-decoration:none}
+.nav-links{display:flex;gap:30px;align-items:center}
+.nav-link{color:#fff;text-decoration:none;font-size:14px;font-weight:500;transition:opacity 0.2s;padding:8px 12px;border-radius:4px}
+.nav-link:hover{background:rgba(255,255,255,0.1)}
+.nav-link.active{background:rgba(255,255,255,0.2)}
+.container{max-width:1400px;margin:0 auto;padding:20px 40px;background:#fff;min-height:calc(100vh - 60px)}
+h1{color:#00548C;border-bottom:3px solid #00548C;padding-bottom:10px;margin-bottom:8px;font-size:32px}
+.page-desc{color:#6b7280;font-size:14px;margin-bottom:20px;line-height:1.5}
+.footer{margin-top:60px;padding-top:30px;border-top:2px solid #e5e7eb;text-align:center;color:#9ca3af;font-size:12px}
+
+/* Dashboard Shell Styles */
+.shell-container{margin:30px 0;border:2px solid #e5e7eb;border-radius:8px;overflow:hidden;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+.shell-wrapper{display:flex;height:600px;position:relative}
+
+/* Sidebar */
+.shell-sidebar{width:180px;background:#00558C;color:#fff;display:flex;flex-direction:column;position:relative;transition:all 0.3s}
+.shell-sidebar:hover{background:#00649C;box-shadow:0 0 20px rgba(0,84,140,0.3)}
+.shell-sidebar:hover .hover-tooltip{opacity:1;visibility:visible}
+.shell-logo{padding:12px 16px;text-align:left;border-bottom:0px solid rgba(255,255,255,0.15);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.5px}
+.shell-nav-item{padding:8px 16px;border-left:3px solid transparent;font-size:13px;color:#fff;cursor:pointer;transition:all 0.2s;text-align:left;background:transparent}
+.shell-nav-item:hover{background:rgba(0,0,0,0.15)}
+.shell-nav-item.active{background:#003D5C;border-left-color:#fff}
+
+/* Topbar */
+.shell-topbar{position:absolute;top:0;left:180px;right:220px;height:40px;background:linear-gradient(90deg,#003D5C 0%,#00548C 50%,#0066A1 100%);color:#fff;display:flex;align-items:center;padding:0 20px;justify-content:space-between;transition:all 0.3s;z-index:10;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+.shell-topbar:hover{box-shadow:0 2px 8px rgba(0,84,140,0.4)}
+.shell-topbar:hover .hover-tooltip{opacity:1;visibility:visible}
+.shell-topbar-title{font-weight:600;font-size:13px;letter-spacing:0.2px}
+.shell-topbar-actions{display:flex;gap:8px;align-items:center}
+.shell-topbar-btn{width:18px;height:18px;display:flex;align-items:center;justify-content:center}
+
+/* Filter Panel */
+.shell-filters{width:220px;background:#fff;border-left:1px solid #e5e7eb;display:flex;flex-direction:column;position:relative;transition:all 0.3s}
+.shell-filters:hover{background:#fafbfc;box-shadow:-2px 0 8px rgba(0,0,0,0.05)}
+.shell-filters:hover .hover-tooltip{opacity:1;visibility:visible}
+.shell-filter-header{padding:12px 16px;border-bottom:1px solid #e5e7eb;font-weight:600;font-size:12px;color:#1a1a2e;display:flex;align-items:center;gap:6px}
+.shell-filter-content{padding:12px}
+.shell-filter-item{margin-bottom:14px}
+.shell-filter-label{color:#374151;margin-bottom:4px;font-size:11px;font-weight:600;display:block}
+.shell-filter-input{width:100%;padding:6px 8px;border:1px solid #d1d5db;border-radius:4px;font-size:11px;background:#fff;color:#1a1a2e;font-family:inherit;cursor:pointer}
+.shell-filter-input:focus{outline:none;border-color:#00548C}
+
+/* Content Area */
+.shell-content{flex:1;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin-top:40px;position:relative;transition:all 0.3s}
+.shell-content:hover{background:#e8eaed}
+.shell-content:hover .hover-tooltip{opacity:1;visibility:visible}
+.shell-content-placeholder{text-align:center;color:#9ca3af}
+.shell-content-placeholder-icon{font-size:48px;margin-bottom:10px;opacity:0.3}
+.shell-content-placeholder-text{font-size:14px}
+
+/* Hover Tooltips */
+.hover-tooltip{position:absolute;background:#1a1a2e;color:#fff;padding:16px 20px;border-radius:6px;font-size:13px;line-height:1.6;opacity:0;visibility:hidden;transition:all 0.3s;pointer-events:none;z-index:1000;box-shadow:0 4px 12px rgba(0,0,0,0.3);width:500px}
+.hover-tooltip strong{color:#00AEEF;display:block;margin-bottom:6px;font-size:14px}
+.shell-sidebar .hover-tooltip{left:190px;top:50%;transform:translateY(-50%)}
+.shell-topbar .hover-tooltip{top:50px;left:50%;transform:translateX(-50%)}
+.shell-filters .hover-tooltip{right:230px;top:50%;transform:translateY(-50%)}
+.shell-content .hover-tooltip{top:50%;left:50%;transform:translate(-50%,-50%)}
+
+/* Dimensions Label */
+.dimension-label{position:absolute;background:#00548C;color:#fff;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600;opacity:0;transition:opacity 0.3s}
+.shell-sidebar:hover .dimension-label,
+.shell-topbar:hover .dimension-label,
+.shell-filters:hover .dimension-label,
+.shell-content:hover .dimension-label{opacity:1}
+.shell-sidebar .dimension-label{bottom:10px;left:50%;transform:translateX(-50%)}
+.shell-topbar .dimension-label{right:10px;top:50%;transform:translateY(-50%)}
+.shell-filters .dimension-label{bottom:10px;left:50%;transform:translateX(-50%)}
+.shell-content .dimension-label{top:10px;right:10px}
+
+/* Specs Button */
+.specs-btn{background:#00AEEF;color:#fff;border:none;padding:8px 16px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;transition:background 0.2s;margin:20px 0}
+.specs-btn:hover{background:#009BD5}
+
+/* Modal */
+.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5);overflow:auto}
+.modal.active{display:block}
+.modal-content{background:#fff;margin:5% auto;padding:0;border-radius:8px;width:90%;max-width:700px;box-shadow:0 4px 20px rgba(0,0,0,0.3);animation:slideDown 0.3s}
+@keyframes slideDown{from{transform:translateY(-50px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{padding:20px 24px;border-bottom:2px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{margin:0;color:#00548C;font-size:18px}
+.modal-close{color:#9ca3af;font-size:28px;font-weight:bold;cursor:pointer;transition:color 0.2s}
+.modal-close:hover{color:#374151}
+.modal-body{padding:24px;max-height:70vh;overflow-y:auto}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION BAR -->
+<div class="nav-bar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-brand">PPA Dashboard Standards</a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="shell.html" class="nav-link active">Shell</a>
+      <a href="colors.html" class="nav-link">Colors & Fonts</a>
+      <a href="layouts.html" class="nav-link">Components</a>
+      <a href="filters.html" class="nav-link">Filters</a>
+      <a href="best-practices.html" class="nav-link">Best Practices</a>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+  <h1>Dashboard Shell Template</h1>
+  <p class="page-desc">This is the standard dashboard shell structure. All dashboards should follow this layout pattern for consistency.</p>
+
+  <button class="specs-btn" onclick="openModal('templateSpecsModal')">Template Specs</button>
+
+  <!-- SHELL TEMPLATE -->
+  <div class="shell-container">
+    <div class="shell-wrapper">
+      
+      <!-- SIDEBAR -->
+      <div class="shell-sidebar">
+        <div class="shell-logo">PAGES</div>
+        <div class="shell-nav-item active">Page 1</div>
+        <div class="shell-nav-item">Page 2</div>
+        <div class="shell-nav-item">Page 3</div>
+      </div>
+
+      <!-- TOPBAR -->
+      <div class="shell-topbar">
+        <div class="shell-topbar-title">Provider Engagement Dashboard</div>
+        <div class="shell-topbar-actions">
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px">
+            <div style="font-size:9px;color:rgba(255,255,255,0.95);font-weight:400;line-height:1.2">Department Name: MedEcon Provider Engagement</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.95);font-weight:400;line-height:1.2">Data Refresh: 06/24/2026 | Claims through 05/31/2026</div>
+          </div>
+          <div style="width:1px;height:20px;background:rgba(135,206,250,0.4);margin:0 12px"></div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="shell-topbar-btn" title="Home">
+              <svg viewBox="0 0 24 24" style="width:100%;height:100%;fill:#fff"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            </div>
+            <div class="shell-topbar-btn" title="Help">
+              <svg viewBox="0 0 24 24" style="width:100%;height:100%;fill:#fff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+            </div>
+            <div class="shell-topbar-btn" title="Settings">
+              <svg viewBox="0 0 24 24" style="width:100%;height:100%;fill:#fff"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            </div>
+          </div>
+          <div style="width:1px;height:20px;background:rgba(135,206,250,0.4);margin:0 12px"></div>
+          <div style="height:20px;width:83px;background:rgba(255,255,255,0.2);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600">LOGO</div>
+        </div>
+      </div>
+
+      <!-- CONTENT AREA -->
+      <div class="shell-content">
+        <div class="shell-content-placeholder">
+          <div class="shell-content-placeholder-icon">📊</div>
+          <div class="shell-content-placeholder-text">Content Area</div>
+          <div class="shell-content-placeholder-text" style="font-size:11px;margin-top:8px;color:#d1d5db">Charts, KPIs, Tables, etc.</div>
+        </div>
+      </div>
+
+      <!-- FILTER PANEL -->
+      <div class="shell-filters">
+        <div class="shell-filter-header">
+          <svg style="width:14px;height:14px;fill:currentColor" viewBox="0 0 24 24">
+            <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+          </svg>
+          Filters
+        </div>
+        <div class="shell-filter-content">
+          <div class="shell-filter-item">
+            <label class="shell-filter-label">Time Period</label>
+            <select class="shell-filter-input">
+              <option>Last 30 days</option>
+              <option>Last 90 days</option>
+              <option>YTD 2026</option>
+            </select>
+          </div>
+          <div class="shell-filter-item">
+            <label class="shell-filter-label">Market / State</label>
+            <select class="shell-filter-input">
+              <option>Illinois Medicaid</option>
+              <option>Kentucky Medicaid</option>
+              <option>Ohio Medicaid</option>
+            </select>
+          </div>
+          <div class="shell-filter-item">
+            <label class="shell-filter-label">Provider Group</label>
+            <select class="shell-filter-input">
+              <option>All Providers</option>
+              <option>Provider Group 1</option>
+              <option>Provider Group 2</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SPECIFICATIONS -->
+  <h2 style="margin-top:50px">Shell Specifications</h2>
+  
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin:30px 0">
+    <div style="border:1px solid #e5e7eb;border-radius:6px;padding:20px">
+      <h3 style="margin-top:0;color:#00548C">Dimensions</h3>
+      <ul style="font-size:14px;line-height:1.8;color:#374151">
+        <li><strong>Sidebar:</strong> 180px fixed width</li>
+        <li><strong>Topbar:</strong> 40px fixed height</li>
+        <li><strong>Filter Panel:</strong> 220px fixed width</li>
+        <li><strong>Content Area:</strong> Flexible (fills remaining space)</li>
+      </ul>
+    </div>
+    
+    <div style="border:1px solid #e5e7eb;border-radius:6px;padding:20px">
+      <h3 style="margin-top:0;color:#00548C">Colors</h3>
+      <ul style="font-size:14px;line-height:1.8;color:#374151">
+        <li><strong>Sidebar:</strong> #00558C (Centene Blue)</li>
+        <li><strong>Topbar:</strong> linear-gradient(90deg, #003D5C 0%, #00548C 50%, #0066A1 100%)</li>
+        <li><strong>Filter Panel:</strong> #ffffff (White)</li>
+        <li><strong>Content Area:</strong> #f0f2f5 (Light Gray)</li>
+      </ul>
+    </div>
+    
+    <div style="border:1px solid #e5e7eb;border-radius:6px;padding:20px">
+      <h3 style="margin-top:0;color:#00548C">Typography</h3>
+      <ul style="font-size:14px;line-height:1.8;color:#374151">
+        <li><strong>Font Family:</strong> 'Segoe UI', system-ui, sans-serif</li>
+        <li><strong>Dashboard Title:</strong> 13px, bold, 0.2px letter-spacing</li>
+        <li><strong>Sidebar Header:</strong> 12px, bold, uppercase, 0.5px letter-spacing</li>
+        <li><strong>Nav Items:</strong> 13px, regular</li>
+        <li><strong>Filter Title:</strong> 12px, bold</li>
+        <li><strong>Filter Labels:</strong> 11px, bold</li>
+        <li><strong>Filter Inputs:</strong> 11px</li>
+        <li><strong>Dept/Refresh Info:</strong> 9px, regular</li>
+      </ul>
+    </div>
+    
+    <div style="border:1px solid #e5e7eb;border-radius:6px;padding:20px">
+      <h3 style="margin-top:0;color:#00548C">Spacing</h3>
+      <ul style="font-size:14px;line-height:1.8;color:#374151">
+        <li><strong>Content Padding:</strong> 16px all sides</li>
+        <li><strong>Sidebar Header:</strong> 12px 16px padding</li>
+        <li><strong>Nav Items:</strong> 8px 16px padding</li>
+        <li><strong>Filter Header:</strong> 12px 16px padding</li>
+        <li><strong>Filter Content:</strong> 12px padding wrapper</li>
+        <li><strong>Filter Groups:</strong> 14px bottom margin</li>
+        <li><strong>Topbar Dividers:</strong> 12px left/right margin</li>
+        <li><strong>Icon Gap:</strong> 8px between icons</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:30px">
+    <div class="note-title">💡 Implementation Tips</div>
+    <ul style="margin:10px 0;padding-left:20px;font-size:14px;line-height:1.8">
+      <li>Use the template HTML file as a starting point for new dashboards</li>
+      <li>Use <code>position: fixed</code> for sidebar and filter panel to keep them visible during scroll</li>
+      <li>The content area should be VERTICALLY scrollable if content exceeds viewport height</li>
+      <li>The content area should NEVER be horizontally scrollable</li>
+      <li>Maintain consistent z-index values: sidebar (10), topbar (20), filters (10), content (1)</li>
+    </ul>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p><strong>Dashboard Standards Reference - Shell</strong></p>
+    <p>Standard dashboard template structure and specifications</p>
+    <p style="margin-top:10px">Last Updated: July 7, 2026 | Version 1.0</p>
+  </div>
+
+</div>
+
+<!-- TEMPLATE SPECS MODAL -->
+<div id="templateSpecsModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Dashboard Shell Template Specifications</h3>
+      <span class="modal-close" onclick="closeModal('templateSpecsModal')">&times;</span>
+    </div>
+    <div class="modal-body">
+      
+      <h4 style="color:#00548C;margin-top:0">Navigation Sidebar</h4>
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Dimensions & Colors</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+          width: 180px<br>
+          background: #00558C (Centene Blue)<br>
+          color: #fff<br>
+          Active item background: #003D5C<br>
+          Active border-left: 3px solid #fff
+        </div>
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Typography</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+          font-family: 'Segoe UI', Arial, sans-serif<br>
+          Logo: 12px, uppercase, letter-spacing 0.5px<br>
+          Nav items: 13px, padding 8px 16px<br>
+          Hover: background rgba(0,0,0,0.15)
+        </div>
+      </div>
+
+      <h4 style="color:#00548C;margin-top:30px">Top Header Bar</h4>
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Dimensions & Colors</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+          height: 40px<br>
+          left: 180px (after sidebar)<br>
+          right: 220px (before filters)<br>
+          background: linear-gradient(90deg, #003D5C 0%, #00548C 50%, #0066A1 100%)<br>
+          color: #fff<br>
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1)
+        </div>
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Typography</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+          font-family: 'Segoe UI', Arial, sans-serif<br>
+          Title: 13px, font-weight 600, letter-spacing 0.2px<br>
+          Icons: 18px × 18px, gap 8px
+        </div>
+      </div>
+
+      <h4 style="color:#00548C;margin-top:30px">Filter Panel (Right Side)</h4>
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Dimensions & Colors</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+          width: 220px<br>
+          background: #fff<br>
+          border-left: 1px solid #e5e7eb<br>
+          Header background: transparent<br>
+          Header border-bottom: 1px solid #e5e7eb
+        </div>
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Typography</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+          font-family: 'Segoe UI', Arial, sans-serif<br>
+          Header: 12px, font-weight 600, padding 12px 16px<br>
+          Labels: 11px, font-weight 600, color #374151<br>
+          Inputs: 11px, padding 6px 8px, border 1px solid #d1d5db<br>
+          Input focus: border-color #00548C
+        </div>
+      </div>
+
+      <h4 style="color:#00548C;margin-top:30px">Content Area</h4>
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Dimensions & Colors</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+          flex: 1 (fills remaining space)<br>
+          margin-top: 40px (below header)<br>
+          background: #f0f2f5<br>
+          padding: 16px<br>
+          overflow-y: auto (vertical scroll only)
+        </div>
+      </div>
+
+      <h4 style="color:#00548C;margin-top:30px">Z-Index Hierarchy</h4>
+      <div style="margin-bottom:20px">
+        <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+          Content area: z-index 1<br>
+          Sidebar: z-index 10<br>
+          Filter panel: z-index 10<br>
+          Top header: z-index 20 (highest)
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function openModal(id){
+  document.getElementById(id).classList.add('active');
+}
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('active');
+}
+
+window.onclick=function(event){
+  if(event.target.classList.contains('modal')){
+    event.target.classList.remove('active');
+  }
+}
+</script>
+
+</body>
+</html>

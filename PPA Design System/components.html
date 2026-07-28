@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Components - Dashboard Standards Reference</title>
+<style>
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f5f5f5;margin:0;padding:0;color:#1a1a2e;line-height:1.6}
+.nav-bar{background:#00548C;color:#fff;padding:0 40px;box-shadow:0 2px 4px rgba(0,0,0,0.1);position:sticky;top:0;z-index:100}
+.nav-container{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-brand{font-size:18px;font-weight:600;color:#fff;text-decoration:none}
+.nav-links{display:flex;gap:30px;align-items:center}
+.nav-link{color:#fff;text-decoration:none;font-size:14px;font-weight:500;transition:opacity 0.2s;padding:8px 12px;border-radius:4px}
+.nav-link:hover{background:rgba(255,255,255,0.1)}
+.nav-link.active{background:rgba(255,255,255,0.2)}
+.container{max-width:1200px;margin:0 auto;padding:40px;background:#fff;min-height:calc(100vh - 60px)}
+h1{color:#00548C;border-bottom:3px solid #00548C;padding-bottom:10px;margin-bottom:30px;font-size:32px}
+h2{color:#003D5C;margin-top:40px;margin-bottom:20px;font-size:24px}
+h3{color:#00548C;margin-top:30px;margin-bottom:15px;font-size:18px}
+.note{background:#eff6ff;border-left:4px solid:#00548C;padding:15px;margin:20px 0;border-radius:4px}
+.note-title{font-weight:600;color:#00548C;margin-bottom:8px}
+.footer{margin-top:60px;padding-top:30px;border-top:2px solid #e5e7eb;text-align:center;color:#9ca3af;font-size:12px}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<div class="nav-bar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-brand">PPA Dashboard Standards</a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="shell.html" class="nav-link">Shell</a>
+      <a href="colors.html" class="nav-link">Colors & Fonts</a>
+      <a href="layouts.html" class="nav-link">Components</a>
+      <a href="filters.html" class="nav-link">Filters</a>
+      <a href="best-practices.html" class="nav-link">Best Practices</a>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+  <h1>🧩 Components</h1>
+  
+  <div class="note">
+    <div class="note-title">Coming Soon</div>
+    <p>This page will contain KPI cards, panels, badges, buttons, tables, and other UI components with live examples and code snippets.</p>
+    <p style="margin-top:10px">For now, please refer to <strong>DASHBOARD-STANDARDS-GUIDE.md</strong> for component specifications.</p>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p><strong>Dashboard Standards Reference - Components</strong></p>
+    <p>Last Updated: July 7, 2026 | Version 1.0</p>
+  </div>
+
+</div>
+
+</body>
+</html>

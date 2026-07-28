@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Components - PPA Dashboard Standards Reference</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f5f5f5;margin:0;padding:0;color:#1a1a2e;line-height:1.6}
+.nav-bar{background:#00548C;color:#fff;padding:0 40px;box-shadow:0 2px 4px rgba(0,0,0,0.1);position:sticky;top:0;z-index:100}
+.nav-container{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-brand{font-size:18px;font-weight:600;color:#fff;text-decoration:none}
+.nav-links{display:flex;gap:30px;align-items:center}
+.nav-link{color:#fff;text-decoration:none;font-size:14px;font-weight:500;transition:opacity 0.2s;padding:8px 12px;border-radius:4px}
+.nav-link:hover{background:rgba(255,255,255,0.1)}
+.nav-link.active{background:rgba(255,255,255,0.2)}
+.container{max-width:1200px;margin:0 auto;padding:20px 40px;background:#fff;min-height:calc(100vh - 60px)}
+h1{color:#00548C;border-bottom:3px solid #00548C;padding-bottom:10px;margin-bottom:8px;font-size:32px}
+h2{color:#003D5C;margin-top:30px;margin-bottom:12px;font-size:24px}
+h3{color:#00548C;margin-top:20px;margin-bottom:10px;font-size:18px}
+.page-desc{color:#6b7280;font-size:14px;margin-bottom:20px;line-height:1.5}
+.footer{margin-top:60px;padding-top:30px;border-top:2px solid #e5e7eb;text-align:center;color:#9ca3af;font-size:12px}
+.collapsible-section{margin-top:40px}
+.collapsible-header{display:flex;align-items:center;cursor:pointer;user-select:none;padding:10px 0}
+.collapsible-header h2{margin:0;flex:1}
+.toggle-icon{font-size:20px;color:#00548C;font-weight:bold;margin-right:10px;transition:transform 0.3s}
+.toggle-icon.collapsed{transform:rotate(-90deg)}
+.collapsible-content{max-height:5000px;overflow:hidden;transition:max-height 0.3s ease-out}
+.collapsible-content.collapsed{max-height:0}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.4px;padding:7px 8px;border-bottom:1px solid #f1f5f9;text-align:left;font-weight:600;background:#fafbfc;white-space:nowrap;cursor:pointer;user-select:none;position:relative}
+th:hover{background:#f0f4f8}
+th.r{text-align:right}
+th.sortable::after{content:'⇅';margin-left:6px;color:#9ca3af;font-size:11px}
+th.sort-asc::after{content:'↑';color:#00548C}
+th.sort-desc::after{content:'↓';color:#00548C}
+td{font-size:11px;padding:7px 8px;border-bottom:1px solid #f8fafc;color:#374151;vertical-align:middle}
+td.r{text-align:right}
+td.muted{color:#9ca3af;font-size:10px}
+tr:hover td{background:#f9fafb}
+tr:last-child td{border-bottom:none}
+.pill{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500;white-space:nowrap;display:inline-block}
+.pill-red{background:#fce4e4;color:#9E2234}
+.pill-green{background:#dcfce7;color:#438956}
+.pill-amber{background:#fef3c7;color:#F37021}
+.pill-blue{background:#dbeafe;color:#00548C}
+.export-btn{background:#00548C;color:#fff;border:none;padding:6px 14px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;transition:background 0.2s}
+.export-btn:hover{background:#004A7B}
+.specs-btn{background:#00AEEF;color:#fff;border:none;padding:8px 16px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;transition:background 0.2s;margin:20px 0}
+.specs-btn:hover{background:#009BD5}
+.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5);overflow:auto}
+.modal.active{display:block}
+.modal-content{background:#fff;margin:5% auto;padding:0;border-radius:8px;width:90%;max-width:600px;box-shadow:0 4px 20px rgba(0,0,0,0.3);animation:slideDown 0.3s}
+@keyframes slideDown{from{transform:translateY(-50px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{padding:20px 24px;border-bottom:2px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{margin:0;color:#00548C;font-size:18px}
+.modal-close{color:#9ca3af;font-size:28px;font-weight:bold;cursor:pointer;transition:color 0.2s}
+.modal-close:hover{color:#374151}
+.modal-body{padding:24px;max-height:70vh;overflow-y:auto}
+</style>
+<script>
+function toggleSection(id){
+  const content=document.getElementById(id);
+  const icon=document.getElementById(id+'-icon');
+  content.classList.toggle('collapsed');
+  icon.classList.toggle('collapsed');
+}
+
+function sortTable(table, column, type='text'){
+  const tbody=table.querySelector('tbody');
+  const rows=Array.from(tbody.querySelectorAll('tr'));
+  const headers=table.querySelectorAll('th');
+  const currentHeader=headers[column];
+  const isAsc=currentHeader.classList.contains('sort-asc');
+  
+  headers.forEach(h=>h.classList.remove('sort-asc','sort-desc'));
+  
+  rows.sort((a,b)=>{
+    const aVal=a.children[column].textContent.trim().replace(/[^0-9.-]/g,'');
+    const bVal=b.children[column].textContent.trim().replace(/[^0-9.-]/g,'');
+    if(type==='number'){
+      return isAsc?(parseFloat(bVal)-parseFloat(aVal)):(parseFloat(aVal)-parseFloat(bVal));
+    }
+    return isAsc?(bVal.localeCompare(aVal)):(aVal.localeCompare(bVal));
+  });
+  
+  currentHeader.classList.add(isAsc?'sort-desc':'sort-asc');
+  rows.forEach(row=>tbody.appendChild(row));
+}
+
+function openModal(id){
+  document.getElementById(id).classList.add('active');
+}
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('active');
+}
+
+window.onclick=function(event){
+  if(event.target.classList.contains('modal')){
+    event.target.classList.remove('active');
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<div class="nav-bar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-brand">PPA Dashboard Standards</a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="shell.html" class="nav-link">Shell</a>
+      <a href="colors.html" class="nav-link">Colors & Fonts</a>
+      <a href="layouts.html" class="nav-link active">Components</a>
+      <a href="filters.html" class="nav-link">Filters</a>
+      <a href="best-practices.html" class="nav-link">Best Practices</a>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+  <h1>Components</h1>
+  
+  <div class="note">
+    <p>This page defines the standard layout patterns for dashboard content, including KPI cards, chart panels, and table grids. All dashboards should follow these patterns for consistency and usability.</p>
+  </div>
+
+  <!-- KPI CARDS SECTION -->
+  <div class="collapsible-section">
+    <div class="collapsible-header" onclick="toggleSection('kpi-section')">
+      <span class="toggle-icon collapsed" id="kpi-section-icon">▼</span>
+      <h2>1. KPI Cards</h2>
+    </div>
+    <div class="collapsible-content collapsed" id="kpi-section">
+  
+  <p style="margin:20px 0;color:#6b7280;font-size:14px"><strong>Purpose:</strong> KPI cards are placed at the top of dashboards for importance. They provide at-a-glance metrics with performance indicators.</p>
+
+  <button class="specs-btn" onclick="openModal('kpiSpecsModal')">KPI Specs</button>
+
+  <div style="background:#f9fafb;padding:20px;border-radius:6px;margin:20px 0">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+      <div style="background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.08);padding:10px;height:121px;box-sizing:border-box">
+        <div style="font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;font-weight:400">ER Visits per 1000</div>
+        <div style="font-size:20px;font-weight:600;color:#1a1a2e;line-height:1;margin-bottom:5px">780</div>
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:5px">
+          <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;background:#dcfce7;color:#166534">At target</span>
+        </div>
+        <div style="font-size:10px;color:#9ca3af">Market avg: 780</div>
+      </div>
+      <div style="background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.08);padding:10px;height:121px;box-sizing:border-box">
+        <div style="font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;font-weight:400">Admissions per 1000</div>
+        <div style="font-size:20px;font-weight:600;color:#1a1a2e;line-height:1;margin-bottom:5px">180</div>
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:5px">
+          <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;background:#fef3c7;color:#92400e">+9% vs market</span>
+        </div>
+        <div style="font-size:10px;color:#9ca3af">Market avg: 165</div>
+      </div>
+      <div style="background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.08);padding:10px;height:121px;box-sizing:border-box">
+        <div style="font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;font-weight:400">30-Day Readmission</div>
+        <div style="font-size:20px;font-weight:600;color:#1a1a2e;line-height:1;margin-bottom:5px">19.2%</div>
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:5px">
+          <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;background:#fce4e4;color:#b91c1c">+4.7 pts</span>
+        </div>
+        <div style="font-size:10px;color:#9ca3af">Market avg: 14.5%</div>
+      </div>
+      <div style="background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.08);padding:10px;height:121px;box-sizing:border-box">
+        <div style="font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;font-weight:400">CM Enrolled</div>
+        <div style="font-size:20px;font-weight:600;color:#1a1a2e;line-height:1;margin-bottom:5px">68%</div>
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:5px">
+          <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;background:#dcfce7;color:#166534">At target</span>
+        </div>
+        <div style="font-size:10px;color:#9ca3af">Market avg: 68%</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Performance Badges</h3>
+  <div style="display:flex;gap:12px;margin:20px 0;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;background:#dcfce7;color:#166534">At target</span>
+      <span style="font-size:13px;color:#6b7280">Green: On target or positive</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;background:#fef3c7;color:#92400e">+9% vs market</span>
+      <span style="font-size:13px;color:#6b7280">Amber: Warning or caution</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;background:#fce4e4;color:#b91c1c">+4.7 pts vs market</span>
+      <span style="font-size:13px;color:#6b7280">Red: Below target or negative</span>
+    </div>
+  </div>
+
+  <h3>KPI Card Requirements</h3>
+  <div style="border:1px solid #e5e7eb;border-radius:6px;padding:20px;margin:20px 0">
+    <h4 style="margin-top:0;color:#00548C">✓ Must Include</h4>
+    <ul style="font-size:14px;line-height:1.8;color:#374151;margin:0;padding-left:20px">
+      <li><strong>Title/Label:</strong> Clear metric name (10px, uppercase, gray)</li>
+      <li><strong>Data Value:</strong> Large, bold number (20px, bold, navy)</li>
+      <li><strong>Performance Indicator:</strong> Badge showing variance, comparison to target, market average, or benchmark</li>
+      <li><strong>Context Text:</strong> Additional information like "Market avg: 780" (10px, gray)</li>
+      <li><strong>Optional:</strong> KPI cards may include clickable links for drill-down details. Use subtle styling (underline on hover) to indicate interactivity.</li>
+    </ul>
+  </div>
+
+    </div>
+  </div>
+
+  <!-- GRAPHS SECTION -->
+  <div class="collapsible-section">
+    <div class="collapsible-header" onclick="toggleSection('chart-section')">
+      <span class="toggle-icon collapsed" id="chart-section-icon">▼</span>
+      <h2>2. Charts</h2>
+    </div>
+    <div class="collapsible-content collapsed" id="chart-section">
+  
+  <p style="margin:20px 0;color:#6b7280;font-size:14px"><strong>Purpose:</strong> Charts visualize data trends, distributions, and comparisons. They must be clear, interactive, and provide context.</p>
+
+  <div style="display:flex;gap:8px;margin:20px 0;flex-wrap:wrap">
+    <button class="specs-btn" style="margin:0;padding:6px 12px;font-size:11px" onclick="openModal('erChartModal')">Line Graph Specs</button>
+    <button class="specs-btn" style="margin:0;padding:6px 12px;font-size:11px" onclick="openModal('providerChartModal')">Horizontal Bar Graph Specs</button>
+    <button class="specs-btn" style="margin:0;padding:6px 12px;font-size:11px" onclick="openModal('engagementChartModal')">Vertical Bar Graph Specs</button>
+    <button class="specs-btn" style="margin:0;padding:6px 12px;font-size:11px" onclick="openModal('drugMixChartModal')">Donut Graph Specs</button>
+  </div>
+
+  <div style="background:#f9fafb;padding:20px;border-radius:6px;margin:20px 0">
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+      <div style="background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.08);padding:12px">
+        <div style="margin-bottom:10px">
+          <div style="font-size:12px;font-weight:600;color:#1a1a2e;line-height:1.3">ER Visits per 1000</div>
+          <div style="font-size:10px;color:#6b7280;font-weight:400">Year-over-year comparison (2024, 2025, 2026)</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#F37021;border-radius:2px"></span>2024</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00AEEF;border-radius:2px"></span>2025</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00548C;border-radius:2px"></span>2026</span>
+        </div>
+        <div style="position:relative;height:160px"><canvas id="erTrendChart"></canvas></div>
+      </div>
+
+      <div style="background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.08);padding:12px">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#1a1a2e;line-height:1.3">Provider Group Comparison</div>
+            <div style="font-size:10px;color:#6b7280;font-weight:400">ER visits per 1000 by provider group vs. market average</div>
+          </div>
+          <select id="riskLevelSelect" style="padding:4px 8px;font-size:11px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;color:#374151;cursor:pointer">
+            <option value="high">High Risk</option>
+            <option value="moderate">Moderate Risk</option>
+            <option value="low">Low Risk</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#9E2234;border-radius:2px"></span>Above market avg</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#8DB041;border-radius:2px"></span>At / below market avg</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#d1d5db;border-radius:2px"></span>Market avg</span>
+        </div>
+        <div style="position:relative;height:280px"><canvas id="providerCompChart"></canvas></div>
+      </div>
+
+      <div style="background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.08);padding:12px">
+        <div style="margin-bottom:10px">
+          <div style="font-size:12px;font-weight:600;color:#1a1a2e;line-height:1.3">Engagement by Risk Level</div>
+          <div style="font-size:10px;color:#6b7280;font-weight:400">Current month vs. prior month by risk level</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00548C;border-radius:2px"></span>Current Month</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#9ca3af;border-radius:2px"></span>Prior Month</span>
+        </div>
+        <div style="position:relative;height:160px"><canvas id="engagementChart"></canvas></div>
+      </div>
+
+      <div style="background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.08);padding:12px">
+        <div style="margin-bottom:10px">
+          <div style="font-size:12px;font-weight:600;color:#1a1a2e;line-height:1.3">Drug Mix — % of Total Rx Cost</div>
+          <div style="font-size:10px;color:#6b7280;font-weight:400">Generic vs. brand vs. specialty cost breakdown</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00548C;border-radius:2px"></span>Generic 52%</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00AEEF;border-radius:2px"></span>Brand 28%</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#F37021;border-radius:2px"></span>Specialty 20%</span>
+        </div>
+        <div style="position:relative;height:160px"><canvas id="drugMixChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Chart Requirements</h3>
+  <div style="border:1px solid #e5e7eb;border-radius:6px;padding:20px;margin:20px 0">
+    <h4 style="margin-top:0;color:#00548C">✓ Must Include</h4>
+    <ul style="font-size:14px;line-height:1.8;color:#374151;margin:0;padding-left:20px">
+      <li><strong>Bold Title:</strong> Uppercase, 14px, bold (700), color #003D5C, letter-spacing 0.4px</li>
+      <li><strong>Subtitle/Context:</strong> Additional info like benchmarks or performance (10px, gray #6b7280)</li>
+      <li><strong>Legend:</strong> Small solid squares (10px × 10px, 2px border-radius) with 11px labels, gray text (#6b7280)</li>
+      <li><strong>Axis Labels:</strong> Both X and Y axes with 10px font, gray (#9ca3af for values, #6b7280 for labels)</li>
+      <li><strong>Hover Tooltips:</strong> Display data values on hover with units</li>
+      <li><strong>Optional Dropdown:</strong> For filtering (4px/8px padding, 11px font, light border #e5e7eb)</li>
+    </ul>
+  </div>
+
+    </div>
+  </div>
+
+  <!-- TABLE GRIDS SECTION -->
+  <div class="collapsible-section">
+    <div class="collapsible-header" onclick="toggleSection('table-section')">
+      <span class="toggle-icon collapsed" id="table-section-icon">▼</span>
+      <h2>3. Table Grids</h2>
+    </div>
+    <div class="collapsible-content collapsed" id="table-section">
+  
+  <p style="margin:20px 0;color:#6b7280;font-size:14px"><strong>Purpose:</strong> Tables display structured data in rows and columns. They should be clean, scannable, and support comparison across metrics.</p>
+
+  <button class="specs-btn" onclick="openModal('tableSpecsModal')">Table Specifications</button>
+  
+  <div style="background:#f9fafb;padding:20px;border-radius:6px;margin:20px 0">
+    <div style="background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.08);padding:16px">
+      <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:#1a1a2e">Metric Trend — Last 6 Months</div>
+          <div style="font-size:10px;color:#6b7280;font-weight:400">MoM delta — unfavorable highlighted</div>
+        </div>
+        <button class="export-btn" onclick="alert('Export functionality would be implemented here')">Export</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th class="sortable" onclick="sortTable(this.closest('table'), 0, 'text')">Metric</th>
+            <th class="r sortable" onclick="sortTable(this.closest('table'), 1, 'number')">Oct</th>
+            <th class="r sortable" onclick="sortTable(this.closest('table'), 2, 'number')">Nov</th>
+            <th class="r sortable" onclick="sortTable(this.closest('table'), 3, 'number')">Dec</th>
+            <th class="r sortable" onclick="sortTable(this.closest('table'), 4, 'number')">Jan</th>
+            <th class="r sortable" onclick="sortTable(this.closest('table'), 5, 'number')">Feb</th>
+            <th class="r sortable" onclick="sortTable(this.closest('table'), 6, 'number')">Mar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>PMPM ($)</td>
+            <td class="r">118</td>
+            <td class="r">120</td>
+            <td class="r">119</td>
+            <td class="r">122</td>
+            <td class="r">125</td>
+            <td class="r"><span class="pill pill-red">127</span></td>
+          </tr>
+          <tr>
+            <td>ER Visits per 1000</td>
+            <td class="r">920</td>
+            <td class="r">905</td>
+            <td class="r">890</td>
+            <td class="r">875</td>
+            <td class="r">860</td>
+            <td class="r"><span class="pill pill-green">845</span></td>
+          </tr>
+          <tr>
+            <td>Engagement Rate (%)</td>
+            <td class="r">72</td>
+            <td class="r">74</td>
+            <td class="r">75</td>
+            <td class="r">76</td>
+            <td class="r">77</td>
+            <td class="r"><span class="pill pill-green">78</span></td>
+          </tr>
+          <tr>
+            <td>Risk Score (avg)</td>
+            <td class="r">2.8</td>
+            <td class="r">2.9</td>
+            <td class="r">2.9</td>
+            <td class="r">3.0</td>
+            <td class="r">3.1</td>
+            <td class="r"><span class="pill pill-amber">3.2</span></td>
+          </tr>
+          <tr>
+            <td>Care Gaps Closed</td>
+            <td class="r">145</td>
+            <td class="r">152</td>
+            <td class="r">148</td>
+            <td class="r">156</td>
+            <td class="r">162</td>
+            <td class="r"><span class="pill pill-blue">168</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  </div>
+  </div>
+
+  <!-- OPPORTUNITY BOXES SECTION -->
+  <div class="collapsible-section">
+    <div class="collapsible-header" onclick="toggleSection('opportunity-section')">
+      <span class="toggle-icon collapsed" id="opportunity-section-icon">▼</span>
+      <h2>4. Opportunity Boxes</h2>
+    </div>
+    <div class="collapsible-content collapsed" id="opportunity-section">
+  
+  <p style="margin:20px 0;color:#6b7280;font-size:14px"><strong>Purpose:</strong> Opportunity boxes highlight actionable insights and improvement areas. They use dark blue backgrounds with white text to draw attention.</p>
+
+  <button class="specs-btn" onclick="openModal('opportunitySpecsModal')">Opportunity Specs</button>
+
+  <div style="background:#f9fafb;padding:20px;border-radius:6px;margin:20px 0">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      
+      <div style="border:1px solid #003D5C;border-radius:6px;padding:12px;background:#00548C">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:#ffffff;margin-bottom:2px">Reduce Potentially Preventable ER Visits</div>
+            <div style="font-size:11px;color:#e0e7ff">85 members (42.5% of total ER utilization)</div>
+          </div>
+          <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;background:#fce4e4;color:#b91c1c">High Impact</span>
+        </div>
+        <div style="display:flex;gap:12px;font-size:11px">
+          <a href="#" style="color:#ffffff;text-decoration:none;font-weight:600">Details →</a>
+          <a href="#" style="color:#ffffff;text-decoration:none;font-weight:600">Member List →</a>
+        </div>
+      </div>
+
+      <div style="border:1px solid #003D5C;border-radius:6px;padding:12px;background:#00548C">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:#ffffff;margin-bottom:2px">Engage "Unable to Reach" Members</div>
+            <div style="font-size:11px;color:#e0e7ff">174 members (10% of eligible)</div>
+          </div>
+          <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;background:#fef3c7;color:#92400e">Medium Impact</span>
+        </div>
+        <div style="display:flex;gap:12px;font-size:11px">
+          <a href="#" style="color:#ffffff;text-decoration:none;font-weight:600">Details →</a>
+          <a href="#" style="color:#ffffff;text-decoration:none;font-weight:600">Member List →</a>
+        </div>
+      </div>
+
+      <div style="border:1px solid #003D5C;border-radius:6px;padding:12px;background:#00548C">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:#ffffff;margin-bottom:2px">Urgent: High Readmission Risk Members</div>
+            <div style="font-size:11px;color:#e0e7ff">34 members discharged in last 7 days</div>
+          </div>
+          <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;background:#fce4e4;color:#b91c1c">Urgent</span>
+        </div>
+        <div style="display:flex;gap:12px;font-size:11px">
+          <a href="#" style="color:#ffffff;text-decoration:none;font-weight:600">Details →</a>
+          <a href="#" style="color:#ffffff;text-decoration:none;font-weight:600">Member List →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <h3>Opportunity Box Requirements</h3>
+  <div style="border:1px solid #e5e7eb;border-radius:6px;padding:20px;margin:20px 0">
+    <h4 style="margin-top:0;color:#00548C">✓ Must Include</h4>
+    <ul style="font-size:14px;line-height:1.8;color:#374151;margin:0;padding-left:20px">
+      <li><strong>Title:</strong> Clear, action-oriented headline (13px, bold, white)</li>
+      <li><strong>Subtitle:</strong> Member count and context (11px, light blue #e0e7ff)</li>
+      <li><strong>Badge:</strong> Impact level or urgency indicator (top-right corner)</li>
+      <li><strong>Action Links:</strong> "Details →" and "Member List →" links (11px, white, bold)</li>
+      <li><strong>Dark Blue Background:</strong> #00548C with #003D5C border</li>
+      <li><strong>3-Column Grid:</strong> Display 3 boxes per row with 12px gap</li>
+    </ul>
+  </div>
+
+  </div>
+  </div>
+
+  <!-- MODALS FOR SPECIFICATIONS -->
+  
+  <!-- KPI Specs Modal -->
+  <div id="kpiSpecsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>KPI Card Specifications</h3>
+        <span class="modal-close" onclick="closeModal('kpiSpecsModal')">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Card Dimensions</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            height: 121px (fixed)<br>
+            padding: 10px<br>
+            background: #ffffff<br>
+            border-radius: 6px<br>
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08)<br>
+            gap between cards: 8px
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Title/Label</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 10px<br>
+            font-weight: 400<br>
+            color: #8b949e<br>
+            text-transform: uppercase<br>
+            letter-spacing: 0.4px<br>
+            margin-bottom: 5px
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Data Value</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 20px<br>
+            font-weight: 600<br>
+            color: #1a1a2e<br>
+            line-height: 1<br>
+            margin-bottom: 5px
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Performance Badge</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 10px<br>
+            font-weight: 600<br>
+            padding: 2px 6px<br>
+            border-radius: 3px<br>
+            margin-bottom: 5px
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Badge Colors</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;background:#f9fafb;padding:10px;border-radius:4px">
+            <span style="color:#166534">Green (At target):</span> bg #dcfce7, text #166534<br>
+            <span style="color:#92400e">Amber (Warning):</span> bg #fef3c7, text #92400e<br>
+            <span style="color:#b91c1c">Red (Below target):</span> bg #fce4e4, text #b91c1c
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Context Text</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 10px<br>
+            font-weight: 400<br>
+            color: #9ca3af<br>
+            Example: "Market avg: 780"
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ER Visits Chart Modal -->
+  <div id="erChartModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>ER Visits per 1000 - Chart Specifications</h3>
+        <span class="modal-close" onclick="closeModal('erChartModal')">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Chart Type</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;background:#f9fafb;padding:10px;border-radius:4px">
+            Line chart (Chart.js type: 'line')
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Chart Title</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 12px<br>
+            font-weight: 600<br>
+            color: #1a1a2e<br>
+            text-transform: none (sentence case)
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Chart Subtitle</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 10px<br>
+            font-weight: 400<br>
+            color: #6b7280
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Legend Items</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            Square: 10px × 10px, border-radius: 2px<br>
+            Label: font-size 11px, font-weight 400, color #6b7280<br>
+            Gap between items: 8px
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Colors (Centene)</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;background:#f9fafb;padding:10px;border-radius:4px">
+            <span style="color:#F37021">2024:</span> Orange #F37021<br>
+            <span style="color:#00AEEF">2025:</span> Cyan #00AEEF<br>
+            <span style="color:#00548C">2026:</span> Blue #00548C
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Chart Dimensions</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            height: 160px<br>
+            padding: 12px<br>
+            background: #fff<br>
+            border-radius: 6px<br>
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Provider Group Comparison Chart Modal -->
+  <div id="providerChartModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Provider Group Comparison - Chart Specifications</h3>
+        <span class="modal-close" onclick="closeModal('providerChartModal')">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Chart Type</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;background:#f9fafb;padding:10px;border-radius:4px">
+            Horizontal bar chart (Chart.js type: 'bar', indexAxis: 'y')
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Chart Title & Dropdown</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            Title: 12px, font-weight 600, sentence case, #1a1a2e<br>
+            Dropdown: padding 4px 8px, font-size 11px, font-weight 400<br>
+            border: 1px solid #e5e7eb<br>
+            border-radius: 4px
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Colors (Performance-based)</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;background:#f9fafb;padding:10px;border-radius:4px">
+            <span style="color:#9E2234">Above market avg:</span> Red #9E2234<br>
+            <span style="color:#8DB041">At/below market avg:</span> Green #8DB041<br>
+            <span style="color:#d1d5db">Market avg line:</span> Gray #d1d5db
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Chart Dimensions</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            height: 280px (taller for 8+ items)<br>
+            Bar border-radius: 3-4px<br>
+            padding: 12px<br>
+            background: #fff
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Engagement Chart Modal -->
+  <div id="engagementChartModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Engagement by Risk Level - Chart Specifications</h3>
+        <span class="modal-close" onclick="closeModal('engagementChartModal')">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Chart Type</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;background:#f9fafb;padding:10px;border-radius:4px">
+            Grouped bar chart (Chart.js type: 'bar')
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Chart Title & Subtitle</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            Title: 12px, font-weight 600, sentence case, #1a1a2e<br>
+            Subtitle: 10px, font-weight 400, #6b7280
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Colors (Centene)</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;background:#f9fafb;padding:10px;border-radius:4px">
+            <span style="color:#00548C">Current Month:</span> Blue #00548C<br>
+            <span style="color:#9ca3af">Prior Month:</span> Gray #9ca3af
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Chart Dimensions</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            height: 160px<br>
+            Bar border-radius: 3-4px<br>
+            padding: 12px<br>
+            background: #fff
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drug Mix Chart Modal -->
+  <div id="drugMixChartModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Drug Mix — % of Total Rx Cost - Chart Specifications</h3>
+        <span class="modal-close" onclick="closeModal('drugMixChartModal')">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Chart Type</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;background:#f9fafb;padding:10px;border-radius:4px">
+            Doughnut chart (Chart.js type: 'doughnut')
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Chart Title & Subtitle</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            Title: 12px, font-weight 600, sentence case, #1a1a2e<br>
+            Subtitle: 10px, font-weight 400, #6b7280
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Legend with Percentages</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            Show percentage in legend label<br>
+            Square: 10px × 10px, border-radius: 2px<br>
+            Label: font-size 11px, font-weight 400, color #6b7280
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Colors (Centene Primary)</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;background:#f9fafb;padding:10px;border-radius:4px">
+            <span style="color:#00548C">Generic:</span> Blue #00548C<br>
+            <span style="color:#00AEEF">Brand:</span> Cyan #00AEEF<br>
+            <span style="color:#F37021">Specialty:</span> Orange #F37021
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Chart Dimensions</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            height: 160px<br>
+            padding: 12px<br>
+            background: #fff<br>
+            Cutout: 60% (doughnut hole size)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FOR TABLE SPECIFICATIONS -->
+  <div id="tableSpecsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Table Style Specifications</h3>
+        <span class="modal-close" onclick="closeModal('tableSpecsModal')">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Panel Title</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 12px<br>
+            font-weight: 600<br>
+            color: #1a1a2e<br>
+            text-transform: none (sentence case)
+          </div>
+        </div>
+        
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Panel Subtitle</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 10px<br>
+            font-weight: 400<br>
+            color: #6b7280
+          </div>
+        </div>
+        
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Export Button</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 11px<br>
+            font-weight: 600<br>
+            background: #00548C<br>
+            color: #fff<br>
+            padding: 6px 14px<br>
+            border-radius: 4px<br>
+            hover: #004A7B
+          </div>
+        </div>
+        
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Table Headers (th)</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 10px<br>
+            font-weight: 600<br>
+            color: #9ca3af<br>
+            text-transform: uppercase<br>
+            letter-spacing: 0.4px<br>
+            background: #fafbfc<br>
+            padding: 7px 8px<br>
+            border-bottom: 1px solid #f1f5f9<br>
+            cursor: pointer
+          </div>
+        </div>
+        
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Table Cells (td)</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 11px<br>
+            font-weight: 400<br>
+            color: #374151<br>
+            padding: 7px 8px<br>
+            border-bottom: 1px solid #f8fafc
+          </div>
+        </div>
+        
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Row Hover</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            background: #f9fafb
+          </div>
+        </div>
+        
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Status Pills</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 10px<br>
+            font-weight: 500<br>
+            padding: 2px 7px<br>
+            border-radius: 10px<br>
+            <br>
+            <span style="color:#9E2234">Red:</span> bg #fce4e4, text #9E2234<br>
+            <span style="color:#438956">Green:</span> bg #dcfce7, text #438956<br>
+            <span style="color:#F37021">Orange:</span> bg #fef3c7, text #F37021<br>
+            <span style="color:#00548C">Blue:</span> bg #dbeafe, text #00548C
+          </div>
+        </div>
+        
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Sort Indicators</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            Inactive: ⇅ (gray #9ca3af)<br>
+            Active: ↑↓ (blue #00548C)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FOR OPPORTUNITY SPECIFICATIONS -->
+  <div id="opportunitySpecsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Opportunity Box Specifications</h3>
+        <span class="modal-close" onclick="closeModal('opportunitySpecsModal')">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Container</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            background: #00548C (Centene Blue)<br>
+            border: 1px solid #003D5C<br>
+            border-radius: 6px<br>
+            padding: 12px<br>
+            display: grid<br>
+            grid-template-columns: repeat(3, 1fr)<br>
+            gap: 12px
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Title</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 13px<br>
+            font-weight: 600<br>
+            color: #ffffff<br>
+            margin-bottom: 2px<br>
+            Action-oriented headline
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Subtitle / Context</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 11px<br>
+            font-weight: 400<br>
+            color: #e0e7ff (light blue)<br>
+            Member count and contextual information
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Badge (Top-Right)</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 10px<br>
+            font-weight: 600<br>
+            padding: 2px 6px<br>
+            border-radius: 3px<br>
+            Position: top-right corner
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Badge Colors</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;background:#f9fafb;padding:10px;border-radius:4px">
+            <span style="color:#b91c1c">Red (High Impact/Urgent):</span> bg #fce4e4, text #b91c1c<br>
+            <span style="color:#92400e">Amber (Medium):</span> bg #fef3c7, text #92400e<br>
+            <span style="color:#166534">Green (High Volume):</span> bg #dcfce7, text #166534
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Action Links</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            font-family: 'Segoe UI', Arial, sans-serif<br>
+            font-size: 11px<br>
+            font-weight: 600<br>
+            color: #ffffff<br>
+            text-decoration: none<br>
+            gap: 12px between links<br>
+            Examples: "Details →" and "Member List →"
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Layout Structure</div>
+          <div style="font-size:11px;color:#6b7280;line-height:1.8;font-family:monospace;background:#f9fafb;padding:10px;border-radius:4px">
+            Flexbox layout with justify-content: space-between<br>
+            Title/subtitle on left (flex: 1)<br>
+            Badge on right (align-items: start)<br>
+            Action links below (display: flex, gap: 12px)<br>
+            margin-bottom: 6px between sections
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Table Grid Requirements</h3>
+  <div style="border:1px solid #e5e7eb;border-radius:6px;padding:20px;margin:20px 0">
+    <h4 style="margin-top:0;color:#00548C">✓ Must Include</h4>
+    <ul style="font-size:14px;line-height:1.8;color:#374151;margin:0;padding-left:20px">
+      <li><strong>Panel Header:</strong> Title on left, Export button on right (dark blue #00548C, white text)</li>
+      <li><strong>Header Row:</strong> Uppercase, 10px, gray (#9ca3af), light background (#fafbfc), sortable with click</li>
+      <li><strong>Sort Indicators:</strong> Up/down arrows (↑↓) in Centene Blue (#00548C) when active, neutral (⇅) when inactive</li>
+      <li><strong>Data Cells:</strong> 11px font, dark gray text (#374151), proper alignment</li>
+      <li><strong>Hover State:</strong> Light background (#f9fafb) on row hover, (#f0f4f8) on header hover</li>
+      <li><strong>Status Pills:</strong> Color-coded indicators using official Centene colors</li>
+      <li><strong>Right Alignment:</strong> Use .r class for numeric columns</li>
+    </ul>
+  </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p><strong>Dashboard Standards Reference - Layouts</strong></p>
+    <p>KPI cards and chart panel layout standards</p>
+    <p style="margin-top:10px">Last Updated: July 7, 2026 | Version 1.0</p>
+  </div>
+
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+let chartsInitialized = false;
+
+function toggleSection(id){
+  const content=document.getElementById(id);
+  const icon=document.getElementById(id+'-icon');
+  content.classList.toggle('collapsed');
+  icon.classList.toggle('collapsed');
+  
+  // Initialize charts when Chart Panels section is expanded
+  if(id === 'chart-section' && !content.classList.contains('collapsed') && !chartsInitialized){
+    initializeCharts();
+    chartsInitialized = true;
+  }
+}
+
+function initializeCharts(){
+  // Chart 1: ER Visits Trend (Line Chart)
+  const erCtx = document.getElementById('erTrendChart');
+  if(erCtx){
+    new Chart(erCtx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [
+          {
+            label: '2024',
+            data: [1120, 1098, 1076, 1054, 1032, 1010, 988, 966, 944, 922, 900, 878],
+            borderColor: '#F37021',
+            tension: 0.3
+          },
+          {
+            label: '2025',
+            data: [1042, 1028, 1014, 1000, 986, 972, 958, 944, 930, 916, 902, 888],
+            borderColor: '#00AEEF',
+            tension: 0.3
+          },
+          {
+            label: '2026',
+            data: [920, 910, 900, 890, 880, 870, null, null, null, null, null, null],
+            borderColor: '#00548C',
+            tension: 0.3,
+            borderWidth: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          datalabels: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            ticks: {
+              font: { size: 10 },
+              color: '#9ca3af'
+            },
+            grid: { color: '#f1f5f9' },
+            border: { display: false }
+          },
+          x: {
+            ticks: {
+              font: { size: 10 },
+              color: '#374151'
+            },
+            grid: { display: false },
+            border: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  // Chart 3: Engagement by Risk Level (Grouped Bar Chart)
+  const engCtx = document.getElementById('engagementChart');
+  if(engCtx){
+    new Chart(engCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Actively Engaged', 'Eligible Not Engaged', 'Unable to Reach'],
+        datasets: [
+          {
+            label: 'Current Month',
+            data: [1012, 575, 144],
+            backgroundColor: '#00548C',
+            borderRadius: 4
+          },
+          {
+            label: 'Prior Month',
+            data: [988, 590, 150],
+            backgroundColor: '#9ca3af',
+            borderRadius: 4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          datalabels: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              font: { size: 10 },
+              color: '#9ca3af'
+            },
+            grid: { color: '#f1f5f9' },
+            border: { display: false }
+          },
+          x: {
+            ticks: {
+              font: { size: 11, weight: '600' },
+              color: '#374151'
+            },
+            grid: { display: false },
+            border: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  // Chart 4: Drug Mix (Doughnut Chart)
+  const drugMixCtx = document.getElementById('drugMixChart');
+  if(drugMixCtx){
+    new Chart(drugMixCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Generic', 'Brand', 'Specialty'],
+        datasets: [{
+          data: [52, 28, 20],
+          backgroundColor: ['#00548C', '#00AEEF', '#F37021'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ctx.label + ': ' + ctx.raw + '%'
+            }
+          },
+          datalabels: { display: false }
+        },
+        cutout: '60%'
+      }
+    });
+  }
+
+  // Chart 5: Provider Group Comparison (Horizontal Bar Chart)
+  const providerCompCtx = document.getElementById('providerCompChart');
+  if(providerCompCtx){
+    const providers = ['Howard Brown Health', 'Bluegrass Family Health', 'Mountain View Medical', 'Lexington Primary Care', 'Cumberland Health', 'River Valley Associates', 'Appalachian Clinic', 'Central KY Partners'];
+    const erData = [920, 1048, 856, 742, 698, 654, 612, 588];
+    const marketAvg = 780;
+    
+    new Chart(providerCompCtx, {
+      type: 'bar',
+      data: {
+        labels: providers,
+        datasets: [
+          {
+            label: 'ER Visits per 1000',
+            data: erData,
+            backgroundColor: erData.map(v => v > marketAvg ? '#9E2234' : '#8DB041'),
+            borderRadius: 3
+          },
+          {
+            label: 'Market Average',
+            data: Array(8).fill(marketAvg),
+            backgroundColor: 'rgba(209,213,219,0.6)',
+            borderRadius: 3
+          }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ' ' + ctx.raw + ' visits per 1000'
+            }
+          },
+          datalabels: { display: false }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: {
+              font: { size: 10 },
+              color: '#9ca3af'
+            },
+            grid: { color: '#f1f5f9' },
+            border: { display: false }
+          },
+          y: {
+            ticks: {
+              font: { size: 10 },
+              color: '#6b7280'
+            },
+            grid: { display: false },
+            border: { display: false }
+          }
+        }
+      }
+    });
+  }
+}
+</script>
+
+</body>
+</html>

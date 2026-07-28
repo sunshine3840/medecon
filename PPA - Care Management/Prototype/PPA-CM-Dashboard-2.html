@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Provider Engagement Care Management Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}html,body{overflow-x:hidden}body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f5;color:#1a1a2e;font-size:13px;min-height:100vh;display:flex;flex-direction:column}.sidebar{width:180px;background:#00558C;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:300}.sidebar-header{padding:12px 16px;border-bottom:0px solid rgba(255,255,255,0.15)}.sidebar-title{font-size:12px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:0.5px}.sidebar-nav{flex:1;padding:0;overflow-y:auto}.nav-tab{width:100%;padding:8px 16px;background:transparent;border:none;border-left:3px solid transparent;color:#fff;font-size:13px;font-weight:400;text-align:left;cursor:pointer;transition:all 0.2s;margin-bottom:0;font-family:inherit;display:block}.nav-tab:hover{background:rgba(0,0,0,0.15)}.nav-tab.active{background:#003D5C;border-left-color:#fff}.main-wrapper{margin-left:180px;margin-right:220px;flex:1;display:flex;flex-direction:column;overflow:hidden}.topbar{background:linear-gradient(90deg,#003D5C 0%,#00548C 50%,#0066A1 100%);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:40px;position:sticky;top:0;z-index:200;box-shadow:0 2px 4px rgba(0,0,0,0.1)}.topbar-left{display:flex;align-items:center}.topbar-brand{color:#fff;font-size:13px;font-weight:600;letter-spacing:0.2px}.topbar-divider{width:1px;height:20px;background:rgba(135,206,250,0.4);margin:0 12px}.topbar-right{display:flex;align-items:center}.topbar-info{display:flex;flex-direction:column;align-items:flex-end;gap:1px}.topbar-dept{font-size:9px;color:rgba(255,255,255,0.95);font-weight:400;line-height:1.2}.topbar-refresh{font-size:9px;color:rgba(255,255,255,0.95);font-weight:400;line-height:1.2}.topbar-icons{display:flex;align-items:center;gap:8px}.topbar-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity 0.2s}.topbar-icon:hover{opacity:0.8}.topbar-icon svg{width:18px;height:18px;fill:#fff}.content-wrapper{flex:1;overflow-y:auto;background:#f0f2f5;display:flex}.content-area{padding:16px;flex:1;overflow-y:auto}.main{display:none}.main.active{display:block}.sec-label{font-size:11px;font-weight:700;color:#00558C;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #00558C}.page-subtitle{font-size:13px;color:#6b7280;margin-bottom:20px;font-weight:400}.filter-panel{width:220px;background:#fff;border-left:1px solid #e5e7eb;position:fixed;right:0;top:0;bottom:0;overflow-y:auto;z-index:100}.filter-header{padding:10px 7px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb}.filter-title{font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;gap:6px}.filter-icon{width:14px;height:14px}.filter-content{padding:12px}.filter-group{margin-bottom:12px}.filter-label{font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:4px;display:block}.filter-select{width:100%;padding:6px 8px;border:1px solid #d1d5db;border-radius:4px;font-size:12px;font-family:inherit;background:#fff;cursor:pointer}.filter-select:focus{outline:none;border-color:#00558C}.alert{padding:14px 18px;border-radius:8px;margin-bottom:20px;font-size:13px;line-height:1.5;border-left:4px solid}.alert-danger{background:#fef2f2;border-color:#dc2626;color:#7f1d1d}.alert-warning{background:#fffbeb;border-color:#f59e0b;color:#78350f}.alert-info{background:#eff6ff;border-color:#3b82f6;color:#1e3a8a}.alert strong{font-weight:700}.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px}.kpi{background:#fff;border-radius:8px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.08);border:2px solid #e5e7eb;transition:all 0.2s}.kpi-lbl{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}.kpi-val{font-size:32px;font-weight:700;color:#1a1a2e;line-height:1;margin-bottom:6px}.kpi-meta{font-size:11px;color:#9ca3af;margin-top:6px}.kpi.alert-red{border-color:#dc2626;background:#fef2f2}.kpi.alert-amber{border-color:#f59e0b;background:#fffbeb}.kpi.alert-green{border-color:#16a34a;background:#f0fdf4}.kpi-val.red{color:#9E2234}.kpi-val.amber{color:#DBAE48}.kpi-val.green{color:#8DB041}.kpi-val.blue{color:#2563eb}.trend-indicator{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;margin-left:8px}.trend-up{color:#dc2626}.trend-down{color:#16a34a}.trend-neutral{color:#6b7280}.panel{background:#fff;border-radius:8px;padding:20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.08);border:1px solid #e5e7eb}.panel-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #f3f4f6}.panel-title{font-size:12px;font-weight:600;color:#1a1a2e}.panel-subtitle{font-size:10px;color:#6b7280;margin-top:2px;font-weight:400}.panel-action{font-size:11px;color:#00548C;font-weight:600;cursor:pointer;text-decoration:none}.panel-action:hover{text-decoration:underline}.chart-container{position:relative;height:280px;margin-top:12px}.panel-row{display:grid;gap:16px;margin-bottom:20px}.panel-row.c2{grid-template-columns:1fr 1fr}.panel-row.c3{grid-template-columns:1fr 1fr 1fr}table{width:100%;border-collapse:collapse;font-size:12px}table thead{background:#f9fafb;border-bottom:2px solid #e5e7eb}table th{padding:10px 12px;text-align:left;font-weight:700;color:#374151;text-transform:uppercase;font-size:10px;letter-spacing:0.5px}table td{padding:10px 12px;border-bottom:1px solid #f3f4f6;color:#1f2937}table tbody tr:hover{background:#f9fafb}table td.r{text-align:right}table td.c{text-align:center}.pill{display:inline-block;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}.pill-red{background:#fecaca;color:#7f1d1d}.pill-amber{background:#fed7aa;color:#78350f}.pill-green{background:#bbf7d0;color:#14532d}.pill-blue{background:#bfdbfe;color:#1e3a8a}.pill-gray{background:#e5e7eb;color:#374151}.status-critical{color:#dc2626;font-weight:700}.status-warning{color:#d97706;font-weight:600}.status-good{color:#16a34a;font-weight:600}.btn{padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer;transition:all 0.2s;font-family:inherit}.btn-primary{background:#00548C;color:#fff}.btn-primary:hover{background:#003D5C}.btn-secondary{background:#e5e7eb;color:#374151}.btn-secondary:hover{background:#d1d5db}.definitions-link{position:fixed;bottom:20px;right:20px;background:#00548C;color:#fff;padding:12px 20px;border-radius:24px;font-size:12px;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,84,140,0.3);z-index:100;text-decoration:none;display:inline-flex;align-items:center;gap:6px}.definitions-link:hover{background:#003D5C;box-shadow:0 6px 16px rgba(0,84,140,0.4)}.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:500;align-items:center;justify-content:center;padding:20px}.modal.active{display:flex}.modal-content{background:#fff;border-radius:12px;max-width:900px;max-height:90vh;overflow-y:auto;padding:32px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #e5e7eb}.modal-title{font-size:20px;font-weight:700;color:#003D5C}.modal-close{font-size:28px;color:#9ca3af;cursor:pointer;line-height:1;font-weight:300}.modal-close:hover{color:#374151}.def-section{margin-bottom:24px}.def-title{font-size:14px;font-weight:700;color:#003D5C;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px}.def-content{font-size:13px;color:#4b5563;line-height:1.6;padding-left:12px;border-left:3px solid #00548C;padding:8px 12px;background:#f9fafb;border-radius:4px}.def-source{font-size:11px;color:#6b7280;margin-top:4px;font-style:italic}.member-table-actions{display:flex;gap:12px;margin-bottom:12px}.export-icon{display:inline-block;margin-right:4px}
+</style>
+<style>
+.kpi-lbl{font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;font-weight:400}
+.kpi-val{font-size:20px;font-weight:600;color:#1a1a2e;line-height:1;margin-bottom:5px}
+.kpi-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px}
+.badge-red{background:#fce4e4;color:#b91c1c}
+.badge-green{background:#dcfce7;color:#166534}
+.badge-amber{background:#fef3c7;color:#92400e}
+.kpi-bench{font-size:10px;color:#9ca3af}
+.panel{margin-bottom:8px;padding:10px}
+.panel-row{gap:8px;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-header"><div class="sidebar-title">Pages</div></div>
+  <div class="sidebar-nav">
+    <button class="nav-tab active" onclick="showPage('overview')">Panel Health Overview</button>
+    <button class="nav-tab" onclick="showPage('blank')">Trends & Progress</button>
+    <button class="nav-tab" onclick="showPage('utilization')">Utilization Drivers</button>
+    <button class="nav-tab" onclick="showPage('partnership')">CM Partnership Status</button>
+    <button class="nav-tab" onclick="showPage('opportunities')">Member List</button>
+    <button class="nav-tab" onclick="showDefinitions()">Definitions & Methodology</button>
+  </div>
+</div>
+<div class="main-wrapper">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-brand">Provider Engagement Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-info">
+        <div class="topbar-dept">Department Name: MedEcon Provider Engagement</div>
+        <div class="topbar-refresh">Data Refresh: 06/24/2026 | Claims through 05/31/2026</div>
+      </div>
+      <div class="topbar-divider"></div>
+      <div class="topbar-icons">
+        <div class="topbar-icon" title="Home"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+        <div class="topbar-icon" title="Help"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg></div>
+        <div class="topbar-icon" title="Settings"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></div>
+      </div>
+      <div class="topbar-divider"></div>
+      <img src="centene_logo_again.png" alt="Centene" style="height:20px;width:83px" onerror="this.style.display='none'">
+    </div>
+  </div>
+  <div class="content-wrapper">
+    <div class="content-area">
+
+<div class="main active" id="page-overview">
+  <div class="sec-label">PROVIDER PANEL HEALTH OVERVIEW</div>
+  <div class="panel-row c2">
+    <div class="panel" style="height:254px;box-sizing:border-box">
+      <div class="panel-hdr">
+        <div>
+          <div class="panel-title">Overall Risk Distribution</div>
+          <div class="panel-subtitle">Market avg: 22% high <span class="pill pill-red">+6 pts</span></div>
+        </div>
+        <div style="font-size:11px;color:#6b7280;font-style:italic">Select a bar to filter the</br>screen by risk level.</div>
+      </div>
+      <div style="position:relative;height:160px;margin-top:8px"><canvas id="riskChart"></canvas></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box">
+        <div class="kpi-lbl">ER Visits per 1000</div>
+        <div class="kpi-val">780</div>
+        <div class="kpi-meta"><span class="badge badge-green">At target</span></div>
+        <div class="kpi-bench">Market avg: 780</div>
+      </div>
+      <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box">
+        <div class="kpi-lbl">Admissions per 1000</div>
+        <div class="kpi-val">180</div>
+        <div class="kpi-meta"><span class="badge badge-amber">+9% vs market</span></div>
+        <div class="kpi-bench">Market avg: 165</div>
+      </div>
+      <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box">
+        <div class="kpi-lbl">30-Day Readmission Rate</div>
+        <div class="kpi-val">19.2%</div>
+        <div class="kpi-meta"><span class="badge badge-red">+4.7 pts vs market</span></div>
+        <div class="kpi-bench">Market avg: 14.5%</div>
+      </div>
+      <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box">
+        <div class="kpi-lbl">% CM Eligible → Enrolled</div>
+        <div class="kpi-val">68%</div>
+        <div class="kpi-meta"><span class="badge badge-green">At target</span></div>
+        <div class="kpi-bench">Market avg: 68%</div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-row c2">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div>
+          <div class="panel-title">Risk Distribution by</br>
+            Provider Group</div>
+        </div>
+        <select id="riskLevelSelect" onchange="updateMemberCountChart()" style="padding:4px 8px;font-size:11px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;color:#374151;cursor:pointer">
+          <option value="high">High Risk</option>
+          <option value="moderate">Moderate Risk</option>
+          <option value="low">Low Risk</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#9E2234;border-radius:2px"></span>Above market avg</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#8DB041;border-radius:2px"></span>At / below market avg</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#d1d5db;border-radius:2px"></span>Market average</span>
+      </div>
+      <div style="position:relative;height:280px"><canvas id="providerComparisonChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <div>
+          <div class="panel-title">Utilization Comparison by Provider Group</div>
+        </div>
+        <select id="utilizationMetricSelect" onchange="updateUtilizationChart()" style="padding:4px 8px;font-size:11px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;color:#374151;cursor:pointer">
+          <option value="er">ER Visits per 1000</option>
+          <option value="admissions">Admissions per 1000</option>
+          <option value="readmit">30-Day Readmission Rate</option>
+          <option value="enrollment">% CM Eligible → Enrolled</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#9E2234;border-radius:2px"></span>Above market avg</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#8DB041;border-radius:2px"></span>At / below market avg</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#d1d5db;border-radius:2px"></span>Market average</span>
+      </div>
+      <div style="position:relative;height:280px"><canvas id="utilizationComparisonChart"></canvas></div>
+    </div>
+  </div>
+</div>
+<div class="main" id="page-partnership">
+  <div class="sec-label">CARE MANAGEMENT PARTNERSHIP STATUS</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box;position:relative">
+        <div class="kpi-lbl">Total CM Eligible</div>
+        <div class="kpi-val">1,716</div>
+        <div class="kpi-meta"><span class="badge badge-green">26% of panel</span></div>
+        <div class="kpi-bench">High-risk + chronic conditions</div>
+        <a href="#" onclick="showCareManagerCompare('eligible');return false" style="position:absolute;bottom:8px;right:10px;font-size:11px;color:#00548C;text-decoration:none;font-weight:600">Care Manager Compare →</a>
+      </div>
+      <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box;position:relative">
+        <div class="kpi-lbl">Actively Engaged</div>
+        <div class="kpi-val">892</div>
+        <div class="kpi-meta"><span class="badge badge-green">52% of eligible</span></div>
+        <div class="kpi-bench">Active care plan + monthly contact</div>
+        <a href="#" onclick="showCareManagerCompare('engaged');return false" style="position:absolute;bottom:8px;right:10px;font-size:11px;color:#00548C;text-decoration:none;font-weight:600">Care Manager Compare →</a>
+      </div>
+      <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box;position:relative">
+        <div class="kpi-lbl">Eligible NOT Engaged</div>
+        <div class="kpi-val">650</div>
+        <div class="kpi-meta"><span class="badge badge-amber">38% of eligible</span></div>
+        <div class="kpi-bench">Opportunity for joint enrollment</div>
+        <a href="#" onclick="showCareManagerCompare('notEngaged');return false" style="position:absolute;bottom:8px;right:10px;font-size:11px;color:#00548C;text-decoration:none;font-weight:600">Care Manager Compare →</a>
+      </div>
+      <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box;position:relative">
+        <div class="kpi-lbl">Unable to Reach</div>
+        <div class="kpi-val">174</div>
+        <div class="kpi-meta"><span class="badge badge-amber">10% of eligible</span></div>
+        <div class="kpi-bench">Need provider assistance</div>
+        <a href="#" onclick="showCareManagerCompare('unableToReach');return false" style="position:absolute;bottom:8px;right:10px;font-size:11px;color:#00548C;text-decoration:none;font-weight:600">Care Manager Compare →</a>
+      </div>
+    </div>
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-hdr">
+        <div>
+          <div class="panel-title">Engagement by Risk Level</div>
+          <div class="panel-subtitle">Current month vs. prior month by risk level</div>
+        </div>
+        <select id="riskLevelComparisonSelect" onchange="selectRiskLevel2(this.value)" class="filter-select" style="width:auto;min-width:150px">
+          <option value="all" selected>All Risk Levels</option>
+          <option value="high">High Risk</option>
+          <option value="moderate">Moderate Risk</option>
+          <option value="low">Low Risk</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00548C;border-radius:2px"></span>Current Month</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#9ca3af;border-radius:2px"></span>Prior Month</span>
+      </div>
+      <div style="position:relative;height:130px"><canvas id="riskLevelTrendChart"></canvas></div>
+    </div>
+  </div>
+  <div class="panel" style="display:none">
+    <div class="panel-hdr">
+      <div>
+        <div class="panel-title">Engagement Status Trend (Last 6 Months)</div>
+        <div class="panel-subtitle">Are we improving partnership penetration?</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:20px;margin-bottom:12px;align-items:center">
+      <div style="display:flex;gap:8px">
+        <button id="riskBtn-high" onclick="selectRiskLevel('high')" style="padding:6px 14px;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;background:#00548C;color:#fff;font-family:inherit;transition:all 0.2s">High Risk</button>
+        <button id="riskBtn-moderate" onclick="selectRiskLevel('moderate')" style="padding:6px 14px;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;background:#bfdbfe;color:#1e3a8a;font-family:inherit;transition:all 0.2s">Moderate Risk</button>
+        <button id="riskBtn-low" onclick="selectRiskLevel('low')" style="padding:6px 14px;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;background:#bfdbfe;color:#1e3a8a;font-family:inherit;transition:all 0.2s">Low Risk</button>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;border-left:1px solid #e5e7eb;padding-left:20px">
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#F37021;border-radius:2px"></span>Actively Engaged</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00AEEF;border-radius:2px"></span>Eligible Not Engaged</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#9E9B98;border-radius:2px"></span>Unable to Reach</span>
+      </div>
+    </div>
+    <div style="position:relative;height:280px"><canvas id="engagementTrendChart"></canvas></div>
+  </div>
+  <div class="panel-row c2">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div>
+          <div class="panel-title">CM Performance Metrics</div>
+          <div class="panel-subtitle">Operational responsiveness by tier</div>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Metric</th><th style="text-align:center">Target</th><th style="text-align:center">Actual</th><th style="text-align:center">Status</th></tr></thead>
+        <tbody>
+          <tr><td>Turnaround: Discharge → 1st Outreach (High-Risk)</td><td style="text-align:center">≤ 2 days</td><td style="text-align:center">1.8 days</td><td style="text-align:center"><span class="pill pill-green">On Target</span></td></tr>
+          <tr><td>Turnaround: Discharge → 1st Outreach (Moderate)</td><td style="text-align:center">≤ 5 days</td><td style="text-align:center">4.2 days</td><td style="text-align:center"><span class="pill pill-green">On Target</span></td></tr>
+          <tr><td>Outreach Attempts Before "Unable to Reach"</td><td style="text-align:center">≥ 3 attempts</td><td style="text-align:center">3.4 avg</td><td style="text-align:center"><span class="pill pill-green">On Target</span></td></tr>
+          <tr><td>Successful Contact Rate</td><td style="text-align:center">≥ 60%</td><td style="text-align:center">54.2%</td><td style="text-align:center"><span class="pill pill-amber">Below Target</span></td></tr>
+          <tr><td>Enrollment Rate (Contacted → Enrolled)</td><td style="text-align:center">≥ 70%</td><td style="text-align:center">62.8%</td><td style="text-align:center"><span class="pill pill-amber">Below Target</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <div>
+          <div class="panel-title">CM Effectiveness on Utilization</div>
+          <div class="panel-subtitle">Actively managed vs. not managed populations</div>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Metric</th><th style="text-align:center">Actively Managed</th><th style="text-align:center">Not Managed</th><th style="text-align:center">Impact</th></tr></thead>
+        <tbody>
+          <tr><td>ER Visits per 1000</td><td style="text-align:center">742</td><td style="text-align:center">1,184</td><td style="text-align:center"><span class="pill pill-green">-37%</span></td></tr>
+          <tr><td>Admissions per 1000</td><td style="text-align:center">152</td><td style="text-align:center">224</td><td style="text-align:center"><span class="pill pill-green">-32%</span></td></tr>
+          <tr><td>Readmission Rate</td><td style="text-align:center">14.8%</td><td style="text-align:center">24.6%</td><td style="text-align:center"><span class="pill pill-green">-9.8 pts</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="main" id="page-utilization">
+  <div class="sec-label">UTILIZATION DRIVERS & OPPORTUNITIES</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px">
+    <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box">
+      <div class="kpi-lbl">Potentially Preventable ER Visits</div>
+      <div class="kpi-val">85</div>
+      <div class="kpi-meta"><span class="badge badge-red">42.5% of total</span></div>
+      <div class="kpi-bench">200 total ER visits | 3M PPE</div>
+    </div>
+    <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box">
+      <div class="kpi-lbl">Potentially Preventable Readmissions</div>
+      <div class="kpi-val">12</div>
+      <div class="kpi-meta"><span class="badge badge-red">54.5% of total</span></div>
+      <div class="kpi-bench">22 total readmissions | 3M PPR</div>
+    </div>
+    <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box">
+      <div class="kpi-lbl">High Readmission Risk (Active)</div>
+      <div class="kpi-val">34</div>
+      <div class="kpi-meta"><span class="badge badge-amber">Risk score ≥75</span></div>
+      <div class="kpi-bench">Discharged last 7 days</div>
+    </div>
+    <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box">
+      <div class="kpi-lbl">No Post-Discharge Follow-Up</div>
+      <div class="kpi-val">28</div>
+      <div class="kpi-meta"><span class="badge badge-amber">Care gap</span></div>
+      <div class="kpi-bench">Discharged last 14 days, no PCP appt</div>
+    </div>
+  </div>
+  <div class="panel-row" style="display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-bottom:8px">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div>
+          <div class="panel-title">Potentially Preventable ER Visits by Diagnosis</div>
+          <div class="panel-subtitle">3M PPE Algorithm Results</div>
+        </div>
+      </div>
+      <div style="position:relative;height:240px;max-width:400px;margin:0 auto"><canvas id="preventableERChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <div>
+          <div class="panel-title">Top Clinical Drivers of Utilization</div>
+          <div class="panel-subtitle">Diagnostic categories (Optum Impact Pro groupings)</div>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Clinical Condition</th><th style="text-align:center">Members</th><th style="text-align:center">ER Visits</th><th style="text-align:center">Admits</th><th style="text-align:center">CM Status</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Uncontrolled Diabetes</strong></td><td style="text-align:center">22</td><td style="text-align:center">38</td><td style="text-align:center">8</td><td style="text-align:center"><span class="pill pill-red">36% Enrolled</span></td></tr>
+          <tr><td><strong>Asthma (Uncontrolled)</strong></td><td style="text-align:center">18</td><td style="text-align:center">32</td><td style="text-align:center">4</td><td style="text-align:center"><span class="pill pill-red">44% Enrolled</span></td></tr>
+          <tr><td><strong>CHF (Congestive Heart Failure)</strong></td><td style="text-align:center">14</td><td style="text-align:center">24</td><td style="text-align:center">12</td><td style="text-align:center"><span class="pill pill-amber">57% Enrolled</span></td></tr>
+          <tr><td><strong>COPD</strong></td><td style="text-align:center">12</td><td style="text-align:center">18</td><td style="text-align:center">6</td><td style="text-align:center"><span class="pill pill-amber">58% Enrolled</span></td></tr>
+          <tr><td><strong>Hypertension (Uncontrolled)</strong></td><td style="text-align:center">16</td><td style="text-align:center">14</td><td style="text-align:center">3</td><td style="text-align:center"><span class="pill pill-amber">50% Enrolled</span></td></tr>
+          <tr><td><strong>Behavioral Health (Depression/Anxiety)</strong></td><td style="text-align:center">24</td><td style="text-align:center">28</td><td style="text-align:center">2</td><td style="text-align:center"><span class="pill pill-red">29% Enrolled</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="main" id="page-blank">
+  <div class="sec-label">TRENDS & PROGRESS TRACKING</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px">
+    <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box;position:relative">
+      <div class="kpi-lbl">ER Visits per 1000</div>
+      <div class="kpi-val">920</div>
+      <div class="kpi-meta"><span class="badge badge-green">-12% vs last year</span></div>
+      <div class="kpi-bench">12 months ago: 1,042</div>
+      <a href="#" onclick="showProviderCompare('er');return false" style="position:absolute;bottom:8px;right:10px;font-size:11px;color:#00548C;text-decoration:none;font-weight:600">PCP Compare →</a>
+    </div>
+    <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box;position:relative">
+      <div class="kpi-lbl">Admissions per 1000</div>
+      <div class="kpi-val">180</div>
+      <div class="kpi-meta"><span class="badge badge-green">-9% vs last year</span></div>
+      <div class="kpi-bench">12 months ago: 198</div>
+      <a href="#" onclick="showProviderCompare('admissions');return false" style="position:absolute;bottom:8px;right:10px;font-size:11px;color:#00548C;text-decoration:none;font-weight:600">PCP Compare →</a>
+    </div>
+    <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box;position:relative">
+      <div class="kpi-lbl">30-Day Readmission Rate</div>
+      <div class="kpi-val">19.2%</div>
+      <div class="kpi-meta"><span class="badge badge-green">-2.2 pts vs last year</span></div>
+      <div class="kpi-bench">12 months ago: 21.4%</div>
+      <a href="#" onclick="showProviderCompare('readmit');return false" style="position:absolute;bottom:8px;right:10px;font-size:11px;color:#00548C;text-decoration:none;font-weight:600">PCP Compare →</a>
+    </div>
+    <div class="panel" style="padding:10px;margin-bottom:0;height:121px;box-sizing:border-box;position:relative">
+      <div class="kpi-lbl">% CM Eligible → Enrolled</div>
+      <div class="kpi-val">52%</div>
+      <div class="kpi-meta"><span class="badge badge-green">+8 pts vs last year</span></div>
+      <div class="kpi-bench">12 months ago: 44%</div>
+      <a href="#" onclick="showProviderCompare('enrollment');return false" style="position:absolute;bottom:8px;right:10px;font-size:11px;color:#00548C;text-decoration:none;font-weight:600">PCP Compare →</a>
+    </div>
+  </div>
+  <div class="panel-row c2">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div>
+          <div class="panel-title">ER Visits per 1000</div>
+          <div class="panel-subtitle">Year-over-year comparison (2024, 2025, 2026)</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#F37021;border-radius:2px"></span>2024</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00AEEF;border-radius:2px"></span>2025</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00548C;border-radius:2px"></span>2026</span>
+      </div>
+      <div style="position:relative;height:240px"><canvas id="erTrendChartBlank"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <div>
+          <div class="panel-title">Admissions per 1000</div>
+          <div class="panel-subtitle">Year-over-year comparison (2024, 2025, 2026)</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#F37021;border-radius:2px"></span>2024</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00AEEF;border-radius:2px"></span>2025</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00548C;border-radius:2px"></span>2026</span>
+      </div>
+      <div style="position:relative;height:240px"><canvas id="admitTrendChartBlank"></canvas></div>
+    </div>
+  </div>
+  <div class="panel-row c2">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div>
+          <div class="panel-title">30-Day Readmission Rate</div>
+          <div class="panel-subtitle">Year-over-year comparison (2024, 2025, 2026)</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#F37021;border-radius:2px"></span>2024</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00AEEF;border-radius:2px"></span>2025</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00548C;border-radius:2px"></span>2026</span>
+      </div>
+      <div style="position:relative;height:240px"><canvas id="readmitTrendChartBlank"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <div>
+          <div class="panel-title">% CM Eligible → Enrolled</div>
+          <div class="panel-subtitle">Year-over-year comparison (2024, 2025, 2026)</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#F37021;border-radius:2px"></span>2024</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00AEEF;border-radius:2px"></span>2025</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280"><span style="width:10px;height:10px;background:#00548C;border-radius:2px"></span>2026</span>
+      </div>
+      <div style="position:relative;height:240px"><canvas id="cmEngagementTrendChartBlank"></canvas></div>
+    </div>
+  </div>
+</div>
+<div class="main" id="page-opportunities">
+  <div class="sec-label">OPPORTUNITIES FOR IMPROVEMENT</div>
+  <div style="background:#eff6ff;border-left:3px solid #3b82f6;padding:12px;margin-bottom:16px;border-radius:4px;font-size:12px;color:#1e3a8a">
+    <strong>Tip:</strong> Adjust your member list by clicking the "Member List" links inside the Opportunity Cards below, or by using the filter panel on the right.
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px">
+      <div class="opportunity-card" style="border:1px solid #003D5C;border-radius:6px;padding:12px;background:#00548C">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:#ffffff;margin-bottom:2px">Reduce Potentially Preventable ER Visits</div>
+            <div style="font-size:11px;color:#e0e7ff">85 members (42.5% of total ER utilization)</div>
+          </div>
+          <span class="badge badge-red" style="font-size:10px">High Impact</span>
+        </div>
+        <div style="display:flex;gap:12px;font-size:11px">
+          <a href="#" onclick="showOpportunityDetails('preventableER');return false" style="color:#ffffff;text-decoration:none;font-weight:600">Details →</a>
+          <a href="#" onclick="showOpportunityList('preventableER');return false" style="color:#ffffff;text-decoration:none;font-weight:600">Member List →</a>
+        </div>
+      </div>
+      <div class="opportunity-card" style="border:1px solid #003D5C;border-radius:6px;padding:12px;background:#00548C">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:#ffffff;margin-bottom:2px">Engage "Unable to Reach" Members</div>
+            <div style="font-size:11px;color:#e0e7ff">174 members (10% of eligible)</div>
+          </div>
+          <span class="badge badge-amber" style="font-size:10px">Medium Impact</span>
+        </div>
+        <div style="display:flex;gap:12px;font-size:11px">
+          <a href="#" onclick="showOpportunityDetails('unableToReach');return false" style="color:#ffffff;text-decoration:none;font-weight:600">Details →</a>
+          <a href="#" onclick="showOpportunityList('unableToReach');return false" style="color:#ffffff;text-decoration:none;font-weight:600">Member List →</a>
+        </div>
+      </div>
+      <div class="opportunity-card" style="border:1px solid #003D5C;border-radius:6px;padding:12px;background:#00548C">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:#ffffff;margin-bottom:2px">Urgent: High Readmission Risk Members</div>
+            <div style="font-size:11px;color:#e0e7ff">34 members discharged in last 7 days</div>
+          </div>
+          <span class="badge badge-red" style="font-size:10px">Urgent</span>
+        </div>
+        <div style="display:flex;gap:12px;font-size:11px">
+          <a href="#" onclick="showOpportunityDetails('highReadmissionRisk');return false" style="color:#ffffff;text-decoration:none;font-weight:600">Details →</a>
+          <a href="#" onclick="showOpportunityList('highReadmissionRisk');return false" style="color:#ffffff;text-decoration:none;font-weight:600">Member List →</a>
+        </div>
+      </div>
+  </div>
+  
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px">
+      <div class="opportunity-card" style="border:1px solid #003D5C;border-radius:6px;padding:12px;background:#00548C">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:#ffffff;margin-bottom:2px">Enroll Eligible Members Not Yet Engaged</div>
+            <div style="font-size:11px;color:#e0e7ff">650 members (38% of eligible)</div>
+          </div>
+          <span class="badge badge-green" style="font-size:10px">High Volume</span>
+        </div>
+        <div style="display:flex;gap:12px;font-size:11px">
+          <a href="#" onclick="showOpportunityDetails('eligibleNotEngaged');return false" style="color:#ffffff;text-decoration:none;font-weight:600">Details →</a>
+          <a href="#" onclick="showOpportunityList('eligibleNotEngaged');return false" style="color:#ffffff;text-decoration:none;font-weight:600">Member List →</a>
+        </div>
+      </div>
+      <div class="opportunity-card" style="border:1px solid #003D5C;border-radius:6px;padding:12px;background:#00548C">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:#ffffff;margin-bottom:2px">Close Post-Discharge Follow-Up Gaps</div>
+            <div style="font-size:11px;color:#e0e7ff">28 members without PCP appointment</div>
+          </div>
+          <span class="badge badge-amber" style="font-size:10px">Care Gap</span>
+        </div>
+        <div style="display:flex;gap:12px;font-size:11px">
+          <a href="#" onclick="showOpportunityDetails('postDischargeGap');return false" style="color:#ffffff;text-decoration:none;font-weight:600">Details →</a>
+          <a href="#" onclick="showOpportunityList('postDischargeGap');return false" style="color:#ffffff;text-decoration:none;font-weight:600">Member List →</a>
+        </div>
+      </div>
+      <div class="opportunity-card" style="border:1px solid #003D5C;border-radius:6px;padding:12px;background:#00548C">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:#ffffff;margin-bottom:2px">Improve Care Manager Contact Rate</div>
+            <div style="font-size:11px;color:#e0e7ff">Current: 54.2% | Target: 60%</div>
+          </div>
+          <span class="badge badge-amber" style="font-size:10px">Process</span>
+        </div>
+        <div style="display:flex;gap:12px;font-size:11px">
+          <a href="#" onclick="showOpportunityDetails('improveContactRate');return false" style="color:#ffffff;text-decoration:none;font-weight:600">Details →</a>
+          <a href="#" onclick="showOpportunityList('improveContactRate');return false" style="color:#ffffff;text-decoration:none;font-weight:600">Member List →</a>
+        </div>
+      </div>
+  </div>
+  
+  <div class="panel" id="opportunityMemberList" style="margin-bottom:0">
+      <div class="panel-hdr">
+        <div>
+          <div class="panel-title" id="memberListTitle">Actionable Member List</div>
+          <div class="panel-subtitle" id="memberListSubtitle">20 members</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="resetMemberListFilters()">Reset Filters</button>
+          <button class="btn btn-primary" onclick="exportMemberListToCSV()">Export to CSV</button>
+        </div>
+      </div>
+      <div id="memberListContent" style="padding:0 8px 8px 8px;overflow-x:auto">
+        <!-- Member list will be populated here -->
+      </div>
+    </div>
+    
+  </div>
+</div>
+    </div>
+    <div class="filter-panel">
+      <div class="filter-header"><div class="filter-title"><svg class="filter-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>Filters</div></div>
+      <div class="filter-content">
+        <div class="filter-group"><label class="filter-label">Time Period</label><select class="filter-select"><option>Last 30 days</option><option>Last 90 days</option><option>YTD 2026</option><option>Rolling 12 months</option></select></div>
+        <div class="filter-group"><label class="filter-label">Market / State</label><select class="filter-select" id="marketSelect" onchange="updateProviderView()"><option>Illinois Medicaid</option><option>Kentucky Medicaid</option><option>Ohio Medicaid</option></select></div>
+        <div class="filter-group"><label class="filter-label">Provider Group (TIN)</label><select class="filter-select" id="providerGroupSelect" onchange="updateProviderView()"><option value="all" selected>All TINs</option><option value="howard">Howard Brown Health (36-2989896)</option><option value="bluegrass">Bluegrass Family Health (61-1234567)</option><option value="mountain">Mountain View Medical (62-7654321)</option></select></div>
+        <div class="filter-group"><label class="filter-label">Individual PCP</label><select class="filter-select" id="pcpSelect"><option value="all">All PCPs in Group</option><option>Dr. Sarah Johnson, MD</option><option>Dr. Michael Chen, MD</option></select></div>
+        <div class="filter-group"><label class="filter-label">Risk Level</label><select class="filter-select"><option>All Risk Levels</option><option>High Risk Only</option><option>Moderate Risk Only</option><option>Low Risk Only</option></select></div>
+        <div class="filter-group"><label class="filter-label">Engagement Status</label><select class="filter-select"><option>All Statuses</option><option>Engaged</option><option>Not Engaged</option><option>Unable to Reach</option></select></div>
+        <div class="filter-group"><label class="filter-label">Care Manager</label><select class="filter-select"><option>All Care Managers</option><option>Sarah Johnson, RN</option><option>Michael Chen, RN</option><option>Lisa Martinez, RN</option></select></div>
+        <div class="filter-group"><label class="filter-label">Special Flags</label><select class="filter-select"><option>No Filter</option><option>Recent Discharge (30d)</option><option>High ER Utilizer</option><option>30+ Days No Contact</option></select></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="definitionsModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Definitions & Methodology</div>
+      <span class="modal-close" onclick="closeDefinitions()">&times;</span>
+    </div>
+    <div class="def-section">
+      <div class="def-title">Actively Engaged (Care Management)</div>
+      <div class="def-content">A member is considered "Actively Engaged" if they have: (1) Completed initial care management assessment and agreed to participate, (2) Active care plan on file, and (3) At least one documented interaction with a care manager within the last 30 days (phone, in-person, or telehealth).<div class="def-source">Source: Care Management Operations Team | Validated: 06/2026</div></div>
+    </div>
+    <div class="def-section">
+      <div class="def-title">Risk Stratification Methodology</div>
+      <div class="def-content">Members are stratified into risk tiers using <strong>3M Clinical Risk Groups (CRGs)</strong>:<ul style="margin-top:8px;padding-left:20px"><li><strong>High Risk:</strong> Top 1% of population by predicted cost and clinical complexity (CRG catastrophic and dominant chronic categories)</li><li><strong>Moderate Risk:</strong> Next 2-5% of population (CRG multiple chronic conditions)</li><li><strong>Low Risk:</strong> Remaining population (CRG healthy, acute, and single chronic condition)</li></ul><div class="def-source">Algorithm: 3M Clinical Risk Groups v2.1 | Claims data through 05/31/2026</div></div>
+    </div>
+    <div class="def-section">
+      <div class="def-title">Potentially Preventable ER Visits</div>
+      <div class="def-content">ER visits flagged as potentially preventable using <strong>3M Potentially Preventable Events (PPE) algorithm</strong>. This industry-standard tool identifies ER visits for conditions that could have been managed in an outpatient setting with appropriate access to primary care, chronic disease management, or preventive services.<div class="def-source">Algorithm: 3M Potentially Preventable Events (PPE) v3.2 | Validated by peer-reviewed studies</div></div>
+    </div>
+    <div class="def-section">
+      <div class="def-title">Potentially Preventable Readmissions</div>
+      <div class="def-content">30-day readmissions flagged as potentially preventable using <strong>3M Potentially Preventable Readmissions (PPR) algorithm</strong>. This tool identifies readmissions that could have been avoided with better discharge planning, medication reconciliation, timely follow-up, or care coordination.<div class="def-source">Algorithm: 3M Potentially Preventable Readmissions (PPR) v3.2 | Industry standard for quality measurement</div></div>
+    </div>
+    <div class="def-section">
+      <div class="def-title">Clinical Drivers (Diagnostic Groupings)</div>
+      <div class="def-content">Utilization is categorized by clinical diagnostic groupings using <strong>Optum Impact Pro</strong> methodology. This groups claims by primary diagnosis into clinically meaningful categories (e.g., CHF, COPD, Diabetes, Asthma) rather than service categories (e.g., inpatient, outpatient), enabling actionable clinical conversations.<div class="def-source">Methodology: Optum Impact Pro Clinical Groupings | Updated quarterly</div></div>
+    </div>
+    <div class="def-section">
+      <div class="def-title">Member ID (Plan Member ID)</div>
+      <div class="def-content">All member lists display <strong>Plan Member ID</strong> as the primary identifier. This ID is used across care management systems (TrueCare, case management platforms) for consistent member matching. If you need to cross-reference with other ID types (Subscriber ID, Member ID), contact the data team for a crosswalk file.<div class="def-source">Standard: Plan Member ID | Format: [State]-[Year]-[7-digit number]</div></div>
+    </div>
+    <div class="def-section">
+      <div class="def-title">Provider Attribution Logic</div>
+      <div class="def-content">Members are attributed to the provider (PCP or provider group/TIN) with the <strong>plurality of evaluation and management (E&M) visits in the last 12 months</strong>. Attribution is refreshed monthly. If a member has no E&M visits in the last 12 months, they are attributed based on the most recent PCP assignment in the enrollment file.<div class="def-source">Attribution Date: As of 06/01/2026 | Refresh Frequency: Monthly</div></div>
+    </div>
+    <div class="def-section">
+      <div class="def-title">Data Freshness & Claims Lag</div>
+      <div class="def-content"><strong>Claims Data:</strong> Processed through 05/31/2026. Typical claims lag is 30-45 days for complete adjudication.<br><strong>Care Management Data:</strong> Updated weekly from TrueCare system. Last refresh: 06/23/2026.<br><strong>ADT (Discharge) Data:</strong> Real-time feed for readmission risk alerts. Discharge data available within 24-48 hours.<div class="def-source">Dashboard Refresh Date: 06/24/2026</div></div>
+    </div>
+    <div class="def-section">
+      <div class="def-title">Unable to Reach Criteria</div>
+      <div class="def-content">A member is flagged as "Unable to Reach" if care management has made <strong>3 or more documented outreach attempts</strong> (phone, mail, text) over at least 2 weeks with no successful contact. Attempts must include calls at different times of day. Members with invalid contact information (disconnected phone, returned mail) are flagged after 2 attempts.<div class="def-source">Source: Care Management Outreach Protocol | Updated: Q2 2026</div></div>
+    </div>
+    <div class="def-section">
+      <div class="def-title">Industry Benchmarks (Market Average)</div>
+      <div class="def-content">Market averages represent the <strong>median performance across all provider groups in the same state and line of business</strong> (e.g., Illinois Medicaid). Benchmarks are calculated quarterly and exclude outliers (top and bottom 5% of providers by panel size).<div class="def-source">Benchmark Period: Q1 2026 (Jan-Mar 2026) | Updated quarterly</div></div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="providerCompareModal">
+  <div class="modal-content" style="max-width:900px">
+    <div class="modal-header">
+      <div class="modal-title" id="providerCompareTitle">Provider Comparison</div>
+      <span class="modal-close" onclick="closeProviderCompare()">&times;</span>
+    </div>
+    <div style="padding:20px">
+      <div style="position:relative;height:400px"><canvas id="providerCompareChart"></canvas></div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="opportunityDetailsModal">
+  <div class="modal-content" style="max-width:600px">
+    <div class="modal-header">
+      <div class="modal-title" id="opportunityDetailsTitle">Opportunity Details</div>
+      <span class="modal-close" onclick="closeOpportunityDetails()">&times;</span>
+    </div>
+    <div style="padding:20px" id="opportunityDetailsContent">
+      <!-- Details will be populated here -->
+    </div>
+  </div>
+</div>
+<script>
+let charts={};
+Chart.register(ChartDataLabels);
+function showPage(id){document.querySelectorAll('.main').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');const tabs=document.querySelectorAll('.nav-tab');const map={overview:0,blank:1,utilization:2,partnership:3,opportunities:4};tabs[map[id]].classList.add('active');if(id==='overview'&&!window._overviewChartsBuilt){buildOverviewCharts();window._overviewChartsBuilt=true}else if(id==='partnership'&&!window._partnershipChartsBuilt){buildPartnershipCharts();window._partnershipChartsBuilt=true}else if(id==='utilization'&&!window._utilizationChartsBuilt){buildUtilizationCharts();window._utilizationChartsBuilt=true}else if(id==='opportunities'&&!window._opportunitiesInitialized){showOpportunityList(null);window._opportunitiesInitialized=true}else if(id==='blank'&&!window._blankPageChartsBuilt){buildBlankPageCharts();window._blankPageChartsBuilt=true}}
+function updateProviderView(){const sel=document.getElementById('providerGroupSelect');const name=sel.options[sel.selectedIndex].text.split('(')[0].trim().toUpperCase();document.querySelectorAll('[id^="provider-name-"]').forEach(el=>el.textContent=name);console.log('Provider view updated to:',name)}
+function showDefinitions(){document.getElementById('definitionsModal').classList.add('active')}
+function closeDefinitions(){document.getElementById('definitionsModal').classList.remove('active')}
+function showProviderCompare(metric){const dataMap={er:{data:[920,1048,856,742,698,654,612,588],avg:780,label:'ER Visits per 1000',unit:' visits per 1000',title:'ER Visits per 1000 - PCP Comparison'},admissions:{data:[180,242,198,168,152,142,134,128],avg:165,label:'Admissions per 1000',unit:' admissions per 1000',title:'Admissions per 1000 - PCP Comparison'},readmit:{data:[19.2,24.8,20.2,16.8,15.4,14.2,13.6,12.8],avg:14.5,label:'30-Day Readmission Rate',unit:'%',title:'30-Day Readmission Rate - PCP Comparison'},enrollment:{data:[52,48,58,72,76,78,82,84],avg:68,label:'% CM Eligible → Enrolled',unit:'%',title:'% CM Eligible → Enrolled - PCP Comparison'}};const selected=dataMap[metric];document.getElementById('providerCompareTitle').textContent=selected.title;const providers=['Dr. Sarah Johnson, MD','Dr. Michael Chen, MD','Dr. Emily Rodriguez, MD','Dr. James Wilson, MD','Dr. Lisa Martinez, MD','Dr. Robert Taylor, MD','Dr. Jennifer Lee, MD','Dr. David Brown, MD'];let combined=providers.map((p,i)=>({provider:p,value:selected.data[i]})).sort((a,b)=>b.value-a.value);if(charts.providerCompare){charts.providerCompare.destroy()}const ctx=document.getElementById('providerCompareChart');charts.providerCompare=new Chart(ctx,{type:'bar',data:{labels:combined.map(c=>c.provider),datasets:[{label:selected.label,data:combined.map(c=>c.value),backgroundColor:'#00548C',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw.toLocaleString()+selected.unit}},datalabels:{display:false}},scales:{x:{beginAtZero:true,ticks:{font:{size:10},color:'#9ca3af'},grid:{color:'#f1f5f9'},border:{display:false}},y:{ticks:{font:{size:11},color:'#374151'},grid:{display:false},border:{display:false}}}}});document.getElementById('providerCompareModal').classList.add('active')}
+function closeProviderCompare(){document.getElementById('providerCompareModal').classList.remove('active')}
+function exportMemberListToCSV(){const headers=['Member ID','Name','Risk','Condition','ER (90d)','Admits (90d)','Member Phone','Last Interaction Date','Last Interaction Status','Care Manager Assigned','Care Manager Contact'];let csv=headers.join(',')+'\n';currentMembers.forEach(m=>{const row=[m.id,`"${m.name}"`,m.risk,`"${m.condition}"`,m.erVisits,m.admits,m.phone,m.lastInteractionDate,m.lastInteractionStatus,`"${m.careManager||''}"`,`"${m.careManagerContact||''}"`];csv+=row.join(',')+'\n'});const blob=new Blob([csv],{type:'text/csv'});const url=window.URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='actionable_member_list.csv';a.click();window.URL.revokeObjectURL(url)}
+function resetMemberListFilters(){showOpportunityList(null)}
+function showCareManagerCompare(metric){const dataMap={engaged:{data:[142,128,118,106,94,88,82,74],avg:104,label:'Actively Engaged Members',unit:' members',title:'Actively Engaged Members - Care Manager Comparison'},notEngaged:{data:[98,88,82,76,68,62,58,48],avg:72,label:'Eligible NOT Engaged',unit:' members',title:'Eligible NOT Engaged - Care Manager Comparison'},unableToReach:{data:[28,24,22,20,18,16,14,12],avg:19,label:'Unable to Reach',unit:' members',title:'Unable to Reach - Care Manager Comparison'},eligible:{data:[268,240,222,202,180,166,154,134],avg:195,label:'Total CM Eligible',unit:' members',title:'Total CM Eligible - Care Manager Comparison'}};const selected=dataMap[metric];document.getElementById('providerCompareTitle').textContent=selected.title;const careManagers=['Sarah Johnson, RN','Michael Chen, RN','Emily Rodriguez, RN','James Wilson, RN','Lisa Martinez, RN','Robert Taylor, RN','Jennifer Lee, RN','David Brown, RN'];let combined=careManagers.map((p,i)=>({provider:p,value:selected.data[i]})).sort((a,b)=>b.value-a.value);if(charts.providerCompare){charts.providerCompare.destroy()}const ctx=document.getElementById('providerCompareChart');charts.providerCompare=new Chart(ctx,{type:'bar',data:{labels:combined.map(c=>c.provider),datasets:[{label:selected.label,data:combined.map(c=>c.value),backgroundColor:'#00548C',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw.toLocaleString()+selected.unit}},datalabels:{display:false}},scales:{x:{beginAtZero:true,ticks:{font:{size:10},color:'#9ca3af'},grid:{color:'#f1f5f9'},border:{display:false}},y:{ticks:{font:{size:11},color:'#374151'},grid:{display:false},border:{display:false}}}}});document.getElementById('providerCompareModal').classList.add('active')}
+function generateMembers(){const firstNames=['James','Mary','John','Patricia','Robert','Jennifer','Michael','Linda','William','Barbara','David','Elizabeth','Richard','Susan','Joseph','Jessica','Thomas','Sarah','Charles','Karen','Christopher','Nancy','Daniel','Lisa','Matthew','Betty','Anthony','Margaret','Mark','Sandra','Donald','Ashley','Steven','Kimberly','Paul','Emily','Andrew','Donna','Joshua','Michelle','Kenneth','Carol','Kevin','Amanda','Brian','Dorothy','George','Melissa','Edward','Deborah','Ronald','Stephanie','Timothy','Rebecca','Jason','Sharon','Jeffrey','Laura','Ryan','Cynthia','Jacob','Kathleen','Gary','Amy','Nicholas','Shirley','Eric','Angela','Jonathan','Helen','Stephen','Anna','Larry','Brenda','Justin','Pamela','Scott','Nicole','Brandon','Emma','Benjamin','Samantha','Samuel','Katherine','Raymond','Christine','Gregory','Debra','Frank','Rachel','Alexander','Catherine','Patrick','Carolyn','Jack','Janet','Dennis','Ruth','Jerry','Maria','Tyler','Heather','Aaron','Diane','Jose','Virginia','Adam','Julie','Henry','Joyce','Nathan','Victoria','Douglas','Olivia','Zachary','Kelly','Peter','Christina','Kyle','Lauren','Walter','Joan','Ethan','Evelyn','Jeremy','Judith','Harold','Megan','Keith','Cheryl','Christian','Andrea','Roger','Hannah','Noah','Martha','Gerald','Jacqueline','Carl','Frances','Terry','Gloria','Sean','Ann','Austin','Teresa','Arthur','Kathryn','Lawrence','Sara','Jesse','Janice','Dylan','Jean','Bryan','Alice','Joe','Madison','Jordan','Doris','Billy','Abigail','Bruce','Julia','Albert','Judy','Willie','Grace','Gabriel','Denise','Logan','Amber','Alan','Marilyn','Juan','Beverly','Wayne','Danielle','Roy','Theresa','Ralph','Sophia','Randy','Marie','Eugene','Diana','Vincent','Brittany','Russell','Natalie','Elijah','Isabella','Louis','Charlotte','Bobby','Rose','Philip','Alexis','Johnny','Kayla'];const lastNames=['Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Rodriguez','Martinez','Hernandez','Lopez','Gonzalez','Wilson','Anderson','Thomas','Taylor','Moore','Jackson','Martin','Lee','Perez','Thompson','White','Harris','Sanchez','Clark','Ramirez','Lewis','Robinson','Walker','Young','Allen','King','Wright','Scott','Torres','Nguyen','Hill','Flores','Green','Adams','Nelson','Baker','Hall','Rivera','Campbell','Mitchell','Carter','Roberts'];const conditions=['Diabetes','CHF','COPD','Asthma','Hypertension','Diabetes + CHF','COPD + Diabetes','Asthma + COPD'];const careManagers=['Sarah Johnson, RN','Michael Chen, RN','Emily Rodriguez, RN','James Wilson, RN','Lisa Martinez, RN','Robert Taylor, RN','Jennifer Lee, RN','David Brown, RN'];const interactionStatuses=['Successful','Attempted','No Response'];const generatePhone=()=>'('+['312','773','847'][Math.floor(Math.random()*3)]+') 555-0'+String(Math.floor(Math.random()*900)+100);const generateDate=()=>{const d=new Date();d.setDate(d.getDate()-Math.floor(Math.random()*30));return(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getDate().toString().padStart(2,'0')+'/'+d.getFullYear()};let members=[];let id=8000000;for(let i=0;i<30;i++){const hasCM=Math.random()>0.3;members.push({id:'IL-2026-'+id++,name:lastNames[Math.floor(Math.random()*lastNames.length)]+', '+firstNames[Math.floor(Math.random()*firstNames.length)],risk:Math.random()>0.5?'High Risk':'Moderate Risk',condition:conditions[Math.floor(Math.random()*conditions.length)],erVisits:Math.floor(Math.random()*8)+1,admits:Math.floor(Math.random()*4),phone:generatePhone(),lastInteractionDate:generateDate(),lastInteractionStatus:interactionStatuses[Math.floor(Math.random()*3)],careManager:hasCM?careManagers[Math.floor(Math.random()*careManagers.length)]:'',careManagerContact:hasCM?(Math.random()>0.5?generatePhone():'cm'+Math.floor(Math.random()*8)+'@healthplan.com'):'',tags:['preventableER']})}for(let i=0;i<30;i++){const hasCM=Math.random()>0.3;members.push({id:'IL-2026-'+id++,name:lastNames[Math.floor(Math.random()*lastNames.length)]+', '+firstNames[Math.floor(Math.random()*firstNames.length)],risk:Math.random()>0.5?'High Risk':'Moderate Risk',condition:conditions[Math.floor(Math.random()*conditions.length)],erVisits:Math.floor(Math.random()*8)+1,admits:Math.floor(Math.random()*4),phone:generatePhone(),lastInteractionDate:generateDate(),lastInteractionStatus:interactionStatuses[Math.floor(Math.random()*3)],careManager:hasCM?careManagers[Math.floor(Math.random()*careManagers.length)]:'',careManagerContact:hasCM?(Math.random()>0.5?generatePhone():'cm'+Math.floor(Math.random()*8)+'@healthplan.com'):'',tags:['unableToReach']})}for(let i=0;i<30;i++){const hasCM=Math.random()>0.3;members.push({id:'IL-2026-'+id++,name:lastNames[Math.floor(Math.random()*lastNames.length)]+', '+firstNames[Math.floor(Math.random()*firstNames.length)],risk:'High Risk',condition:conditions[Math.floor(Math.random()*conditions.length)],erVisits:Math.floor(Math.random()*5)+1,admits:Math.floor(Math.random()*3)+1,phone:generatePhone(),lastInteractionDate:generateDate(),lastInteractionStatus:interactionStatuses[Math.floor(Math.random()*3)],careManager:hasCM?careManagers[Math.floor(Math.random()*careManagers.length)]:'',careManagerContact:hasCM?(Math.random()>0.5?generatePhone():'cm'+Math.floor(Math.random()*8)+'@healthplan.com'):'',tags:['highReadmissionRisk']})}for(let i=0;i<30;i++){const hasCM=Math.random()>0.3;members.push({id:'IL-2026-'+id++,name:lastNames[Math.floor(Math.random()*lastNames.length)]+', '+firstNames[Math.floor(Math.random()*firstNames.length)],risk:Math.random()>0.4?'High Risk':'Moderate Risk',condition:conditions[Math.floor(Math.random()*conditions.length)],erVisits:Math.floor(Math.random()*6),admits:Math.floor(Math.random()*3),phone:generatePhone(),lastInteractionDate:generateDate(),lastInteractionStatus:interactionStatuses[Math.floor(Math.random()*3)],careManager:hasCM?careManagers[Math.floor(Math.random()*careManagers.length)]:'',careManagerContact:hasCM?(Math.random()>0.5?generatePhone():'cm'+Math.floor(Math.random()*8)+'@healthplan.com'):'',tags:['eligibleNotEngaged']})}for(let i=0;i<30;i++){const hasCM=Math.random()>0.3;members.push({id:'IL-2026-'+id++,name:lastNames[Math.floor(Math.random()*lastNames.length)]+', '+firstNames[Math.floor(Math.random()*firstNames.length)],risk:Math.random()>0.5?'High Risk':'Moderate Risk',condition:conditions[Math.floor(Math.random()*conditions.length)],erVisits:Math.floor(Math.random()*4)+1,admits:Math.floor(Math.random()*3)+1,phone:generatePhone(),lastInteractionDate:generateDate(),lastInteractionStatus:interactionStatuses[Math.floor(Math.random()*3)],careManager:hasCM?careManagers[Math.floor(Math.random()*careManagers.length)]:'',careManagerContact:hasCM?(Math.random()>0.5?generatePhone():'cm'+Math.floor(Math.random()*8)+'@healthplan.com'):'',tags:['postDischargeGap']})}return members}const allMembers=generateMembers();let currentMembers=[];let sortColumn='';let sortDirection='asc';function sortMembers(column){if(sortColumn===column){sortDirection=sortDirection==='asc'?'desc':'asc'}else{sortColumn=column;sortDirection='asc'}currentMembers.sort((a,b)=>{let valA=a[column];let valB=b[column];if(typeof valA==='string')valA=valA.toLowerCase();if(typeof valB==='string')valB=valB.toLowerCase();if(valA<valB)return sortDirection==='asc'?-1:1;if(valA>valB)return sortDirection==='asc'?1:-1;return 0});renderMemberTable()}function renderMemberTable(){let html='<table><thead><tr><th style="cursor:pointer" onclick="sortMembers(\'id\')">Member ID '+(sortColumn==='id'?(sortDirection==='asc'?'▲':'▼'):'')+'</th><th style="text-align:center;cursor:pointer" onclick="sortMembers(\'name\')">Name '+(sortColumn==='name'?(sortDirection==='asc'?'▲':'▼'):'')+'</th><th style="text-align:center;cursor:pointer" onclick="sortMembers(\'risk\')">Risk '+(sortColumn==='risk'?(sortDirection==='asc'?'▲':'▼'):'')+'</th><th style="text-align:center;cursor:pointer" onclick="sortMembers(\'condition\')">Condition '+(sortColumn==='condition'?(sortDirection==='asc'?'▲':'▼'):'')+'</th><th style="text-align:center;cursor:pointer" onclick="sortMembers(\'erVisits\')">ER (90d) '+(sortColumn==='erVisits'?(sortDirection==='asc'?'▲':'▼'):'')+'</th><th style="text-align:center;cursor:pointer" onclick="sortMembers(\'admits\')">Admits (90d) '+(sortColumn==='admits'?(sortDirection==='asc'?'▲':'▼'):'')+'</th><th style="text-align:center;cursor:pointer;min-width:120px" onclick="sortMembers(\'phone\')">Member Phone '+(sortColumn==='phone'?(sortDirection==='asc'?'▲':'▼'):'')+'</th><th style="text-align:center;cursor:pointer" onclick="sortMembers(\'lastInteractionDate\')">Last Interaction Date '+(sortColumn==='lastInteractionDate'?(sortDirection==='asc'?'▲':'▼'):'')+'</th><th style="text-align:center;cursor:pointer" onclick="sortMembers(\'lastInteractionStatus\')">Last Interaction Status '+(sortColumn==='lastInteractionStatus'?(sortDirection==='asc'?'▲':'▼'):'')+'</th><th style="text-align:center;cursor:pointer" onclick="sortMembers(\'careManager\')">Care Manager Assigned '+(sortColumn==='careManager'?(sortDirection==='asc'?'▲':'▼'):'')+'</th><th style="text-align:center;cursor:pointer" onclick="sortMembers(\'careManagerContact\')">Care Manager Contact '+(sortColumn==='careManagerContact'?(sortDirection==='asc'?'▲':'▼'):'')+'</th></tr></thead><tbody>';currentMembers.forEach(m=>{const riskClass=m.risk==='High Risk'?'pill-red':'pill-amber';const statusClass=m.lastInteractionStatus==='Successful'?'pill-green':(m.lastInteractionStatus==='Attempted'?'pill-amber':'pill-gray');html+=`<tr><td>${m.id}</td><td style="text-align:center">${m.name}</td><td style="text-align:center"><span class="pill ${riskClass}">${m.risk}</span></td><td style="text-align:center">${m.condition}</td><td style="text-align:center">${m.erVisits}</td><td style="text-align:center">${m.admits}</td><td style="text-align:center;min-width:120px">${m.phone}</td><td style="text-align:center">${m.lastInteractionDate}</td><td style="text-align:center"><span class="pill ${statusClass}">${m.lastInteractionStatus}</span></td><td style="text-align:center">${m.careManager||'—'}</td><td style="text-align:center;font-size:11px">${m.careManagerContact||'—'}</td></tr>`});html+='</tbody></table>';document.getElementById('memberListContent').innerHTML=html}function showOpportunityDetails(opportunityType){const details={preventableER:{title:'Reduce Potentially Preventable ER Visits',whatToDo:'Focus chronic care management enrollment on members with uncontrolled diabetes (22 members), asthma (18 members), and CHF (14 members). These conditions drive 40% of preventable ER visits.',impact:'Enrolling these 54 members in CM could prevent ~35 ER visits annually (est. $140,000 savings)'},unableToReach:{title:'Engage "Unable to Reach" Members',whatToDo:'Ask front desk staff to mention care management at next visit. A brief provider endorsement increases enrollment by 40%.',impact:'Enrolling 70 additional members could prevent ~25 ER visits and 8 admissions annually'},highReadmissionRisk:{title:'Urgent: High Readmission Risk Members',whatToDo:'Schedule follow-up appointments within 7 days of discharge. Early follow-up reduces readmissions by 30%.',impact:'Timely follow-up could prevent ~10 readmissions (est. $150,000 savings)'},eligibleNotEngaged:{title:'Enroll Eligible Members Not Yet Engaged',whatToDo:'Prioritize high-risk members with recent ER visits or admissions. Care managers can reach out, but provider endorsement doubles enrollment rates.',impact:'Enrolling 200 additional members could prevent ~75 ER visits and reduce readmissions by 15%'},postDischargeGap:{title:'Close Post-Discharge Follow-Up Gaps',whatToDo:'Proactively schedule follow-up appointments for all discharged members. Care transitions are critical windows for preventing readmissions.',impact:'Closing this gap could prevent 8-10 readmissions annually'},improveContactRate:{title:'Improve Care Manager Contact Rate',whatToDo:'Share updated contact information at visits. Ask patients to confirm phone numbers and preferred contact times with front desk staff.',impact:'Reaching target contact rate would enable ~100 additional member enrollments annually'}};const selected=details[opportunityType];if(!selected)return;document.getElementById('opportunityDetailsTitle').textContent=selected.title;document.getElementById('opportunityDetailsContent').innerHTML=`<div style="margin-bottom:20px"><div style="font-weight:600;color:#1a1a2e;margin-bottom:8px;font-size:14px">What to do:</div><div style="color:#374151;line-height:1.6">${selected.whatToDo}</div></div><div><div style="font-weight:600;color:#1a1a2e;margin-bottom:8px;font-size:14px">Expected Impact:</div><div style="color:#00548C;line-height:1.6;font-weight:600">${selected.impact}</div></div>`;document.getElementById('opportunityDetailsModal').classList.add('active')}function closeOpportunityDetails(){document.getElementById('opportunityDetailsModal').classList.remove('active')}function showOpportunityList(opportunityType){const titles={preventableER:'Potentially Preventable ER Visits',unableToReach:'Unable to Reach Members',highReadmissionRisk:'High Readmission Risk',eligibleNotEngaged:'Eligible NOT Engaged',postDischargeGap:'Post-Discharge Follow-Up Gaps',improveContactRate:'Actionable Member List'};if(opportunityType==='improveContactRate'){document.getElementById('memberListTitle').textContent=titles[opportunityType];document.getElementById('memberListSubtitle').textContent='Process improvement strategies';document.getElementById('memberListContent').innerHTML='<div style="padding:40px 20px;text-align:center"><div style="font-size:14px;color:#6b7280">This is a process improvement opportunity. Focus on updating member contact information at each visit to improve care manager outreach success rates.</div></div>';return}currentMembers=opportunityType?allMembers.filter(m=>m.tags.includes(opportunityType)):allMembers.slice(0,30);document.getElementById('memberListTitle').textContent=opportunityType?titles[opportunityType]:'Actionable Member List';document.getElementById('memberListSubtitle').textContent=currentMembers.length+' members';sortColumn='risk';sortDirection='desc';currentMembers.sort((a,b)=>{const riskOrder={'High Risk':0,'Moderate Risk':1,'Low Risk':2};return riskOrder[a.risk]-riskOrder[b.risk]});renderMemberTable()}
+function updateChartOpacity(){if(activeRiskFilter==='all'){charts.risk.data.datasets[0].backgroundColor=['#00548C','#00548C','#00548C']}else{const levels=['high','moderate','low'];charts.risk.data.datasets[0].backgroundColor=levels.map((l,i)=>l===activeRiskFilter?'#00548C':'rgba(200,200,200,0.3)')}charts.risk.update()}
+function applyRiskFilter(level){const kpiData={all:{er:780,admit:180,readmit:19.2,enroll:68},high:{er:920,admit:210,readmit:22.4,enroll:52},moderate:{er:780,admit:180,readmit:18.6,enroll:68},low:{er:654,admit:152,readmit:14.8,enroll:84}};const data=kpiData[level];document.querySelector('.panel:nth-child(1) .kpi-val').textContent=data.er;document.querySelector('.panel:nth-child(2) .kpi-val').textContent=data.admit;document.querySelector('.panel:nth-child(3) .kpi-val').textContent=data.readmit+'%';document.querySelector('.panel:nth-child(4) .kpi-val').textContent=data.enroll+'%';const riskLevel=level==='all'?document.getElementById('riskLevelSelect').value:level;document.getElementById('riskLevelSelect').value=riskLevel;updateMemberCountChart(true);updateUtilizationChart(true)}
+function updateMemberCountChart(shuffle=false){const level=document.getElementById('riskLevelSelect').value;let providers=['Howard Brown Health','Bluegrass Family Health','Mountain View Medical','Lexington Primary Care','Cumberland Health','River Valley Associates','Appalachian Clinic','Central KY Partners'];const dataMap={high:{data:[342,298,264,228,196,182,168,164],avg:230,label:'High Risk Members'},moderate:{data:[412,386,354,318,286,264,242,228],avg:320,label:'Moderate Risk Members'},low:{data:[298,274,248,224,198,182,168,154],avg:220,label:'Low Risk Members'}};const selected=dataMap[level];let combined=providers.map((p,i)=>({provider:p,value:selected.data[i]}));if(shuffle){combined=combined.sort(()=>Math.random()-0.5)}else{combined=combined.sort((a,b)=>b.value-a.value)}charts.provComp.data.labels=combined.map(c=>c.provider);charts.provComp.data.datasets[0].data=combined.map(c=>c.value);charts.provComp.data.datasets[0].label=selected.label;charts.provComp.data.datasets[1].data=Array(8).fill(selected.avg);charts.provComp.data.datasets[0].backgroundColor=combined.map(c=>c.value>selected.avg?'#9E2234':'#8DB041');charts.provComp.options.plugins.tooltip.callbacks.label=ctx=>ctx.dataset.label+': '+ctx.raw.toLocaleString()+' members';charts.provComp.update()}
+function updateUtilizationChart(shuffle=false){const metric=document.getElementById('utilizationMetricSelect').value;let providers=['Howard Brown Health','Bluegrass Family Health','Mountain View Medical','Lexington Primary Care','Cumberland Health','River Valley Associates','Appalachian Clinic','Central KY Partners'];const dataMap={er:{data:[920,1048,856,742,698,654,612,588],avg:780,label:'ER Visits per 1000',unit:' visits per 1000'},admissions:{data:[210,242,198,168,152,142,134,128],avg:165,label:'Admissions per 1000',unit:' admissions per 1000'},readmit:{data:[22.4,24.8,20.2,16.8,15.4,14.2,13.6,12.8],avg:14.5,label:'30-Day Readmission Rate',unit:'%'},enrollment:{data:[52,48,58,72,76,78,82,84],avg:68,label:'% CM Eligible → Enrolled',unit:'%'}};const selected=dataMap[metric];let combined=providers.map((p,i)=>({provider:p,value:selected.data[i]}));if(shuffle){combined=combined.sort(()=>Math.random()-0.5)}else{combined=combined.sort((a,b)=>b.value-a.value)}charts.utilComp.data.labels=combined.map(c=>c.provider);charts.utilComp.data.datasets[0].data=combined.map(c=>c.value);charts.utilComp.data.datasets[0].label=selected.label;charts.utilComp.data.datasets[1].data=Array(8).fill(selected.avg);charts.utilComp.data.datasets[0].backgroundColor=combined.map(c=>c.value>selected.avg?'#9E2234':'#8DB041');charts.utilComp.options.plugins.tooltip.callbacks.label=ctx=>ctx.dataset.label+': '+ctx.raw.toLocaleString()+selected.unit;charts.utilComp.update()}
+let activeRiskFilter='all';function buildOverviewCharts(){const riskCtx=document.getElementById('riskChart');if(riskCtx){charts.risk=new Chart(riskCtx,{type:'bar',data:{labels:['High Risk','Moderate Risk','Low Risk'],datasets:[{label:'Members',data:[28,40,32],backgroundColor:['#00548C','#00548C','#00548C'],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,onClick:(evt,activeEls)=>{if(activeEls.length>0){const idx=activeEls[0].index;const levels=['high','moderate','low'];activeRiskFilter=levels[idx];applyRiskFilter(activeRiskFilter);updateChartOpacity()}},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.raw+'%'}},datalabels:{align:'end',anchor:'end',color:'#1a1a2e',font:{size:13,weight:'normal'},formatter:(value)=>value+'%'}},scales:{y:{beginAtZero:true,max:50,ticks:{font:{size:10},color:'#9ca3af',callback:v=>v+'%'},grid:{color:'#f1f5f9'},border:{display:false}},x:{ticks:{font:{size:11,weight:'600'},color:'#374151'},grid:{display:false},border:{display:false}}}}})}
+const provCompCtx=document.getElementById('providerComparisonChart');if(provCompCtx){charts.provComp=new Chart(provCompCtx,{type:'bar',data:{labels:['Howard Brown Health','Bluegrass Family Health','Mountain View Medical','Lexington Primary Care','Cumberland Health','River Valley Associates','Appalachian Clinic','Central KY Partners'],datasets:[{label:'High Risk Members',data:[342,298,264,228,196,182,168,164],backgroundColor:['#9E2234','#9E2234','#9E2234','#8DB041','#8DB041','#8DB041','#8DB041','#8DB041'],borderRadius:4},{label:'Market Average',data:[230,230,230,230,230,230,230,230],backgroundColor:'#d1d5db',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw.toLocaleString()+' members'}},datalabels:{display:false}},scales:{x:{beginAtZero:true,ticks:{font:{size:10},color:'#9ca3af'},grid:{color:'#f1f5f9'},border:{display:false}},y:{ticks:{font:{size:11},color:'#374151'},grid:{display:false},border:{display:false}}}}})}
+const utilCompCtx=document.getElementById('utilizationComparisonChart');if(utilCompCtx){charts.utilComp=new Chart(utilCompCtx,{type:'bar',data:{labels:['Howard Brown Health','Bluegrass Family Health','Mountain View Medical','Lexington Primary Care','Cumberland Health','River Valley Associates','Appalachian Clinic','Central KY Partners'],datasets:[{label:'ER Visits per 1000',data:[920,1048,856,742,698,654,612,588],backgroundColor:['#9E2234','#9E2234','#9E2234','#8DB041','#8DB041','#8DB041','#8DB041','#8DB041'],borderRadius:4},{label:'Market Average',data:[780,780,780,780,780,780,780,780],backgroundColor:'#d1d5db',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw.toLocaleString()+' visits per 1000'}},datalabels:{display:false}},scales:{x:{beginAtZero:true,ticks:{font:{size:10},color:'#9ca3af'},grid:{color:'#f1f5f9'},border:{display:false}},y:{ticks:{font:{size:11},color:'#374151'},grid:{display:false},border:{display:false}}}}})}
+}
+const engagementTrendData={high:{activelyEngaged:[250,258,266,274,282,290],eligibleNotEngaged:[195,190,185,180,175,170],unableToReach:[49,47,45,43,41,39]},moderate:{activelyEngaged:[357,365,373,381,389,397],eligibleNotEngaged:[260,255,250,245,240,235],unableToReach:[70,68,66,64,62,60]},low:{activelyEngaged:[285,293,301,309,317,325],eligibleNotEngaged:[195,190,185,180,175,170],unableToReach:[55,53,51,49,47,45]}};
+function selectRiskLevel(riskLevel){['high','moderate','low'].forEach(level=>{const btn=document.getElementById('riskBtn-'+level);if(level===riskLevel){btn.style.background='#00548C';btn.style.color='#fff'}else{btn.style.background='#bfdbfe';btn.style.color='#1e3a8a'}});updateEngagementTrend(riskLevel)}
+function updateEngagementTrend(riskLevel){const data=engagementTrendData[riskLevel];if(charts.eng&&data){charts.eng.data.datasets[0].data=data.activelyEngaged;charts.eng.data.datasets[1].data=data.eligibleNotEngaged;charts.eng.data.datasets[2].data=data.unableToReach;charts.eng.update()}}
+function buildBlankPageCharts(){const erCtx=document.getElementById('erTrendChartBlank');if(erCtx){charts.erTrendBlank=new Chart(erCtx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{label:'2024',data:[1120,1098,1076,1054,1032,1010,988,966,944,922,900,878],borderColor:'#F37021',tension:0.3},{label:'2025',data:[1042,1028,1014,1000,986,972,958,944,930,916,902,888],borderColor:'#00AEEF',tension:0.3},{label:'2026',data:[920,910,900,890,880,870,null,null,null,null,null,null],borderColor:'#00548C',tension:0.3,borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},scales:{y:{beginAtZero:false,ticks:{font:{size:10},color:'#9ca3af'},grid:{color:'#f1f5f9'},border:{display:false}},x:{ticks:{font:{size:10},color:'#374151'},grid:{display:false},border:{display:false}}}}})}
+const admitCtx=document.getElementById('admitTrendChartBlank');if(admitCtx){charts.admitTrendBlank=new Chart(admitCtx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{label:'2024',data:[220,218,216,214,212,210,208,206,204,202,200,198],borderColor:'#F37021',tension:0.3},{label:'2025',data:[198,196,194,192,190,188,186,184,182,180,178,176],borderColor:'#00AEEF',tension:0.3},{label:'2026',data:[180,180,179,179,178,178,null,null,null,null,null,null],borderColor:'#00548C',tension:0.3,borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},scales:{y:{beginAtZero:false,ticks:{font:{size:10},color:'#9ca3af'},grid:{color:'#f1f5f9'},border:{display:false}},x:{ticks:{font:{size:10},color:'#374151'},grid:{display:false},border:{display:false}}}}})}
+const readmitCtx=document.getElementById('readmitTrendChartBlank');if(readmitCtx){charts.readmitTrendBlank=new Chart(readmitCtx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{label:'2024',data:[24.2,23.8,23.4,23.0,22.6,22.2,21.8,21.4,21.0,20.6,20.2,19.8],borderColor:'#F37021',tension:0.3},{label:'2025',data:[21.4,21.0,20.6,20.2,19.8,19.4,19.0,18.6,18.2,17.8,17.4,17.0],borderColor:'#00AEEF',tension:0.3},{label:'2026',data:[19.2,19.0,18.8,18.6,18.4,18.2,null,null,null,null,null,null],borderColor:'#00548C',tension:0.3,borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},scales:{y:{beginAtZero:false,ticks:{font:{size:10},color:'#9ca3af',callback:v=>v+'%'},grid:{color:'#f1f5f9'},border:{display:false}},x:{ticks:{font:{size:10},color:'#374151'},grid:{display:false},border:{display:false}}}}})}
+const cmEngCtx=document.getElementById('cmEngagementTrendChartBlank');if(cmEngCtx){charts.cmEngTrendBlank=new Chart(cmEngCtx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{label:'2024',data:[38,39,40,41,42,43,44,45,46,47,48,49],borderColor:'#F37021',tension:0.3},{label:'2025',data:[44,45,46,47,48,49,50,51,52,53,54,55],borderColor:'#00AEEF',tension:0.3},{label:'2026',data:[52,52,53,53,54,54,null,null,null,null,null,null],borderColor:'#00548C',tension:0.3,borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},scales:{y:{beginAtZero:false,ticks:{font:{size:10},color:'#9ca3af',callback:v=>v+'%'},grid:{color:'#f1f5f9'},border:{display:false}},x:{ticks:{font:{size:10},color:'#374151'},grid:{display:false},border:{display:false}}}}})}
+}
+function buildPartnershipCharts(){const engCtx=document.getElementById('engagementTrendChart');if(engCtx){charts.eng=new Chart(engCtx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{label:'Actively Engaged',data:[250,258,266,274,282,290],borderColor:'#F37021',tension:0.3,borderWidth:3},{label:'Eligible Not Engaged',data:[195,190,185,180,175,170],borderColor:'#00AEEF',tension:0.3},{label:'Unable to Reach',data:[49,47,45,43,41,39],borderColor:'#9E9B98',tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},scales:{y:{beginAtZero:true,ticks:{font:{size:10},color:'#9ca3af'},grid:{color:'#f1f5f9'},border:{display:false}},x:{ticks:{font:{size:10},color:'#374151'},grid:{display:false},border:{display:false}}}}})}
+const riskCtx=document.getElementById('riskLevelTrendChart');if(riskCtx){charts.riskTrend=new Chart(riskCtx,{type:'bar',data:{labels:['Actively Engaged','Eligible Not Engaged','Unable to Reach'],datasets:[{label:'Current Month',data:[1012,575,144],backgroundColor:'#00548C',borderRadius:4},{label:'Prior Month',data:[988,590,150],backgroundColor:'#9ca3af',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},scales:{y:{beginAtZero:true,ticks:{font:{size:10},color:'#9ca3af'},grid:{color:'#f1f5f9'},border:{display:false}},x:{ticks:{font:{size:11,weight:'600'},color:'#374151'},grid:{display:false},border:{display:false}}}}})}
+}
+const engagementComparisonData={all:{current:[1012,575,144],prior:[988,590,150]},high:{current:[290,170,39],prior:[282,175,41]},moderate:{current:[397,235,60],prior:[389,240,62]},low:{current:[325,170,45],prior:[317,175,47]}};
+function selectRiskLevel2(riskLevel){updateEngagementComparison(riskLevel)}
+function updateEngagementComparison(riskLevel){const data=engagementComparisonData[riskLevel];if(charts.riskTrend&&data){charts.riskTrend.data.datasets[0].data=data.current;charts.riskTrend.data.datasets[1].data=data.prior;charts.riskTrend.update()}}
+function buildUtilizationCharts(){const prevCtx=document.getElementById('preventableERChart');if(prevCtx){charts.prev=new Chart(prevCtx,{type:'doughnut',data:{labels:['Diabetes','Asthma','CHF','COPD','Hypertension','Other'],datasets:[{data:[18,14,12,10,8,23],backgroundColor:['#003D5C','#0077B6','#3D2952','#8B0F3D','#B84E0F','#C28A00']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{font:{size:10},color:'#374151',boxWidth:12}},tooltip:{callbacks:{label:function(ctx){return ctx.label+': '+ctx.raw+' visits'}}},datalabels:{color:'#fff',font:{size:12,weight:'bold'},formatter:function(value){return value}}}}})}}
+function buildTrendsCharts(){const erCtx=document.getElementById('erTrendChart');if(erCtx){charts.erTrend=new Chart(erCtx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{label:'2024',data:[1120,1098,1076,1054,1032,1010,988,966,944,922,900,878],borderColor:'#F37021',tension:0.3},{label:'2025',data:[1042,1028,1014,1000,986,972,958,944,930,916,902,888],borderColor:'#00AEEF',tension:0.3},{label:'2026',data:[920,910,900,890,880,870,null,null,null,null,null,null],borderColor:'#00548C',tension:0.3,borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},scales:{y:{beginAtZero:false,ticks:{font:{size:10},color:'#9ca3af'},grid:{color:'#f1f5f9'},border:{display:false}},x:{ticks:{font:{size:10},color:'#374151'},grid:{display:false},border:{display:false}}}}})}
+const admitCtx=document.getElementById('admitTrendChart');if(admitCtx){charts.admitTrend=new Chart(admitCtx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{label:'2024',data:[220,218,216,214,212,210,208,206,204,202,200,198],borderColor:'#F37021',tension:0.3},{label:'2025',data:[198,196,194,192,190,188,186,184,182,180,178,176],borderColor:'#00AEEF',tension:0.3},{label:'2026',data:[180,180,179,179,178,178,null,null,null,null,null,null],borderColor:'#00548C',tension:0.3,borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},scales:{y:{beginAtZero:false,ticks:{font:{size:10},color:'#9ca3af'},grid:{color:'#f1f5f9'},border:{display:false}},x:{ticks:{font:{size:10},color:'#374151'},grid:{display:false},border:{display:false}}}}})}
+const readmitCtx=document.getElementById('readmitTrendChart');if(readmitCtx){charts.readmitTrend=new Chart(readmitCtx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{label:'2024',data:[24.2,23.8,23.4,23.0,22.6,22.2,21.8,21.4,21.0,20.6,20.2,19.8],borderColor:'#F37021',tension:0.3},{label:'2025',data:[21.4,21.0,20.6,20.2,19.8,19.4,19.0,18.6,18.2,17.8,17.4,17.0],borderColor:'#00AEEF',tension:0.3},{label:'2026',data:[19.2,19.0,18.8,18.6,18.4,18.2,null,null,null,null,null,null],borderColor:'#00548C',tension:0.3,borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},scales:{y:{beginAtZero:false,ticks:{font:{size:10},color:'#9ca3af',callback:v=>v+'%'},grid:{color:'#f1f5f9'},border:{display:false}},x:{ticks:{font:{size:10},color:'#374151'},grid:{display:false},border:{display:false}}}}})}
+const cmEngCtx=document.getElementById('cmEngagementTrendChart');if(cmEngCtx){charts.cmEngTrend=new Chart(cmEngCtx,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{label:'2024',data:[38,39,40,41,42,43,44,45,46,47,48,49],borderColor:'#F37021',tension:0.3},{label:'2025',data:[44,45,46,47,48,49,50,51,52,53,54,55],borderColor:'#00AEEF',tension:0.3},{label:'2026',data:[52,52,53,53,54,54,null,null,null,null,null,null],borderColor:'#00548C',tension:0.3,borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},scales:{y:{beginAtZero:false,ticks:{font:{size:10},color:'#9ca3af',callback:v=>v+'%'},grid:{color:'#f1f5f9'},border:{display:false}},x:{ticks:{font:{size:10},color:'#374151'},grid:{display:false},border:{display:false}}}}})}
+}
+window.addEventListener('DOMContentLoaded',()=>{buildOverviewCharts();window._overviewChartsBuilt=true});
+</script>
+</body>
+</html>
